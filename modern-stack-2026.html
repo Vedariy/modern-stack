@@ -1,0 +1,3112 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MODERN STACK // 2026 — Cinema Web Architecture & Frontier Showcase</title>
+
+  <!-- Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: '#06070B',
+            surface: '#0C101C',
+            neonCyan: '#00F0FF',
+            neonViolet: '#7C3AED',
+            neonEmerald: '#10B981',
+            neonAmber: '#F59E0B',
+            neonRose: '#F43F5E',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --bg-obsidian: #06070B;
+      --glass-bg: rgba(12, 16, 28, 0.68);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --cyan: #00F0FF;
+      --violet: #7C3AED;
+      --emerald: #10B981;
+      --amber: #F59E0B;
+      --rose: #F43F5E;
+      --spring: cubic-bezier(0.22, 1, 0.36, 1);
+      --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-obsidian);
+      color: #F1F5F9;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-obsidian);
+      overflow-x: hidden;
+      margin: 0;
+    }
+
+    /* Ambient Cinema Backdrop & Dot Matrix */
+    .cinema-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-color: #06070B;
+      background-image:
+        radial-gradient(circle at 14% 10%, rgba(0, 240, 255, 0.09), transparent 40%),
+        radial-gradient(circle at 86% 18%, rgba(124, 58, 237, 0.12), transparent 44%),
+        radial-gradient(circle at 50% 88%, rgba(16, 185, 129, 0.07), transparent 48%),
+        radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 26px 26px;
+    }
+
+    .cinema-vignette {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 50%, transparent 45%, rgba(3, 4, 8, 0.88) 100%);
+    }
+
+    /* Glassmorphic Cinema Panels */
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(22px) saturate(145%);
+      -webkit-backdrop-filter: blur(22px) saturate(145%);
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        0 24px 55px -16px rgba(0, 0, 0, 0.82),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.07);
+      transition: border-color 0.35s var(--spring), box-shadow 0.35s var(--spring);
+    }
+
+    .glass-panel:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .glass-card-inner {
+      background: rgba(7, 10, 19, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.065);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .text-gradient-cinema {
+      background: linear-gradient(135deg, #FFFFFF 0%, #A5F3FC 46%, #C4B5FD 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* SVG Fiber-Optic Conduit Animations */
+    @keyframes fiberFlow {
+      to { stroke-dashoffset: -48; }
+    }
+
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.75; }
+      75% { transform: scale(1.48); opacity: 0; }
+      100% { transform: scale(1.48); opacity: 0; }
+    }
+
+    .fiber-line {
+      stroke-dasharray: 6 10;
+      animation: fiberFlow 1.35s linear infinite;
+    }
+
+    .fiber-line-fast {
+      stroke-dasharray: 10 12;
+      animation: fiberFlow 0.7s linear infinite;
+    }
+
+    .pulse-ring {
+      transform-origin: center;
+      animation: pulseRing 2.2s var(--spring) infinite;
+    }
+
+    /* Tactile Spring Buttons */
+    .btn-spring {
+      transition: transform 0.25s var(--bounce), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
+    }
+    .btn-spring:hover { transform: translateY(-1px); }
+    .btn-spring:active { transform: scale(0.96); }
+
+    /* Pipeline Active Node */
+    .pipeline-node {
+      transition: all 0.45s var(--spring);
+    }
+    .pipeline-node.active-node {
+      border-color: rgba(0, 240, 255, 0.72);
+      box-shadow:
+        0 0 34px rgba(0, 240, 255, 0.24),
+        inset 0 0 22px rgba(0, 240, 255, 0.09);
+      transform: translateY(-4px) scale(1.015);
+    }
+
+    /* Native CSS Container Queries Sandbox */
+    .cq-viewport {
+      container-type: inline-size;
+      container-name: demoCard;
+    }
+
+    .cq-adaptive-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+      transition: all 0.35s var(--spring);
+    }
+
+    .cq-badge-mode::after {
+      content: "COMPACT (< 340px)";
+    }
+
+    @container demoCard (min-width: 340px) {
+      .cq-adaptive-grid {
+        grid-template-columns: 110px 1fr;
+        align-items: center;
+      }
+      .cq-badge-mode::after {
+        content: "SPLIT CARD (340px – 499px)";
+      }
+    }
+
+    @container demoCard (min-width: 500px) {
+      .cq-adaptive-grid {
+        grid-template-columns: 140px 1fr auto;
+        align-items: center;
+      }
+      .cq-badge-mode::after {
+        content: "WIDE HERO ROW (≥ 500px)";
+      }
+    }
+
+    /* TypeScript Red Squiggly Error Underline */
+    .ts-squiggly {
+      text-decoration-line: underline;
+      text-decoration-style: wavy;
+      text-decoration-color: #F43F5E;
+      text-underline-offset: 3px;
+      background: rgba(244, 63, 94, 0.16);
+      border-radius: 3px;
+      padding: 0 3px;
+    }
+
+    /* OS Toast Notification Animation */
+    @keyframes toastSlideIn {
+      0% { opacity: 0; transform: translateY(-20px) scale(0.95); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .toast-enter {
+      animation: toastSlideIn 0.4s var(--bounce) forwards;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(6, 7, 11, 0.85); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0, 240, 255, 0.45); }
+  </style>
+</head>
+<body class="antialiased selection:bg-cyan-400/30 selection:text-cyan-100">
+
+  <!-- Ambient Cinema Backdrop -->
+  <div class="cinema-backdrop"></div>
+  <div class="cinema-vignette"></div>
+
+  <!-- Live Simulated OS Push Banner (Top Right) -->
+  <div id="osPushBanner" class="fixed top-20 right-4 sm:right-6 z-50 max-w-sm w-[calc(100%-2rem)] hidden">
+    <div class="glass-panel rounded-2xl p-4 border-cyan-400/45 shadow-2xl toast-enter">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-violet-600 flex items-center justify-center shrink-0 text-obsidian font-bold shadow-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[11px] font-mono uppercase tracking-wider text-cyan-300">OS Push • sw.js</span>
+            <span class="text-[11px] font-mono text-slate-400">now</span>
+          </div>
+          <p id="osPushTitle" class="text-sm font-semibold text-white mt-0.5 truncate">Edge Deployment Verified</p>
+          <p id="osPushBody" class="text-xs text-slate-300 mt-0.5 leading-relaxed">Decrypted via p256dh/auth keys while browser tab was closed.</p>
+        </div>
+        <button onclick="dismissOsPush()" class="text-slate-400 hover:text-white p-1.5 rounded-lg" aria-label="Dismiss notification">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- FIXED TOP CINEMA HUD NAVIGATION BAR                                   -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-40 border-b border-white/[0.08] bg-[#06070B]/85 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      <!-- Brand Badge -->
+      <a href="#hero-pipeline" class="flex items-center gap-3 group">
+        <div class="relative w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-400 via-sky-500 to-violet-600 p-[1px] shadow-[0_0_22px_rgba(0,240,255,0.32)]">
+          <div class="w-full h-full bg-[#06070B] rounded-[11px] flex items-center justify-center">
+            <span class="font-mono text-xs font-extrabold text-cyan-300 tracking-tighter">M//S</span>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-sm font-extrabold tracking-wider text-white group-hover:text-cyan-200 transition">MODERN STACK</span>
+            <span class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-cyan-400/15 text-cyan-300 border border-cyan-400/35">2026</span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Cinema Web Architecture Simulator</p>
+        </div>
+      </a>
+
+      <!-- Quick Module Jump Links (01–07) -->
+      <nav class="hidden xl:flex items-center gap-1 bg-white/[0.03] p-1 rounded-xl border border-white/[0.06]">
+        <a href="#mod-islands" class="px-2.5 py-1.5 rounded-lg text-xs font-mono text-slate-300 hover:text-white hover:bg-white/[0.07] transition">01 Islands</a>
+        <a href="#mod-edge" class="px-2.5 py-1.5 rounded-lg text-xs font-mono text-slate-300 hover:text-white hover:bg-white/[0.07] transition">02 Edge</a>
+        <a href="#mod-native" class="px-2.5 py-1.5 rounded-lg text-xs font-mono text-slate-300 hover:text-white hover:bg-white/[0.07] transition">03 Native</a>
+        <a href="#mod-pwa" class="px-2.5 py-1.5 rounded-lg text-xs font-mono text-slate-300 hover:text-white hover:bg-white/[0.07] transition">04 Push</a>
+        <a href="#mod-types" class="px-2.5 py-1.5 rounded-lg text-xs font-mono text-slate-300 hover:text-white hover:bg-white/[0.07] transition">05 Types</a>
+        <a href="#mod-realtime-crypto" class="px-2.5 py-1.5 rounded-lg text-xs font-mono text-slate-300 hover:text-white hover:bg-white/[0.07] transition">06 WebRTC/FIDO2</a>
+        <a href="#mod-frontier" class="px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold text-cyan-300 bg-cyan-400/10 hover:bg-cyan-400/20 border border-cyan-400/30 transition">07 Frontier</a>
+      </nav>
+
+      <!-- Global Controls: Auto-Tour Toggle + ⌘K Agentic Bar -->
+      <div class="flex items-center gap-2.5">
+        <button id="globalTourBtn" onclick="toggleCinemaTour()" class="btn-spring flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-cyan-400 to-violet-600 text-obsidian shadow-[0_0_24px_rgba(0,240,255,0.32)]">
+          <span id="tourDot" class="w-2 h-2 rounded-full bg-obsidian animate-ping"></span>
+          <span id="tourBtnLabel">Auto-Tour: ON</span>
+        </button>
+
+        <button onclick="openCommandModal()" class="btn-spring flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-mono text-slate-200 bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1]" title="Open Agentic Command Bar">
+          <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z"/></svg>
+          <span>⌘K Agentic Bar</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-28 space-y-16">
+
+    <!-- ===================================================================== -->
+    <!-- 1. HERO & 7-STAGE CINEMA ARCHITECTURAL PIPELINE                       -->
+    <!-- ===================================================================== -->
+    <section id="hero-pipeline" class="space-y-6">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div class="space-y-3 max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/25 text-cyan-300 text-xs font-mono">
+            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span>7-STAGE END-TO-END WEB TELEMETRY // LATE-2026 ARCHITECTURE</span>
+          </div>
+          <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-gradient-cinema leading-[1.12]">
+            How the Modern Web Works.
+          </h1>
+          <p class="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl">
+            From zero-bundle Islands and global Edge Workers to UDP/QUIC streams, hardware FIDO2 Passkeys, WebMCP agentic registries, and local-first OPFS CRDT engines.
+          </p>
+        </div>
+
+        <!-- Mode Switcher & Dispatch Trigger -->
+        <div class="glass-panel rounded-2xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+          <div class="flex rounded-xl bg-black/50 p-1 border border-white/[0.06]">
+            <button id="modeTourPill" onclick="setPipelineMode('tour')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-400/20 text-cyan-300 border border-cyan-400/35 transition">
+              Cinema Auto-Tour
+            </button>
+            <button id="modeSandboxPill" onclick="setPipelineMode('sandbox')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition">
+              Interactive Sandbox
+            </button>
+          </div>
+          <button onclick="triggerFullRequestPulse()" class="btn-spring px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-white/[0.07] hover:bg-white/[0.13] text-white border border-white/[0.12] flex items-center justify-center gap-2">
+            <span>⚡ Dispatch Request</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cinema Interactive 7-Node Fiber-Optic Pipeline Stage -->
+      <div class="glass-panel rounded-3xl p-5 sm:p-7 relative overflow-hidden">
+        <div id="stageAmbientGlow" class="pointer-events-none absolute -top-24 left-1/4 w-96 h-96 rounded-full bg-cyan-500/12 blur-3xl transition-all duration-1000"></div>
+
+        <!-- Director Commentary Bar -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-5 mb-6 border-b border-white/[0.07]">
+          <div class="flex items-start sm:items-center gap-3">
+            <span id="stageStepBadge" class="px-2.5 py-1 rounded-lg font-mono text-xs font-bold bg-cyan-400/15 text-cyan-300 border border-cyan-400/35 shrink-0">
+              STAGE 01 / 07
+            </span>
+            <p id="stageDirectorCaption" class="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed">
+              Client & Islands stream server-rendered HTML with zero JS overhead, hydrating only interactive islands on demand.
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-4 text-xs font-mono text-slate-400 shrink-0">
+            <span>LATENCY: <strong id="heroLatency" class="text-emerald-400">12ms</strong></span>
+            <span>JS IMPACT: <strong id="heroJs" class="text-cyan-300">14.0 KB</strong></span>
+            <span>ROLE: <strong id="heroRole" class="text-violet-300">RSC + Islands</strong></span>
+          </div>
+        </div>
+
+        <!-- Curved Bézier Fiber-Optic Conduits + Traveling Light Photons -->
+        <div class="relative">
+          <svg class="hidden xl:block w-full h-14 mb-2 pointer-events-none" viewBox="0 0 1400 56" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="conduitGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.9" />
+                <stop offset="35%" stop-color="#7C3AED" stop-opacity="0.95" />
+                <stop offset="70%" stop-color="#10B981" stop-opacity="0.95" />
+                <stop offset="100%" stop-color="#F59E0B" stop-opacity="0.95" />
+              </linearGradient>
+              <filter id="photonGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Curved Bézier Wave Conduits linking all 7 centers (100, 300, 500, 700, 900, 1100, 1300) -->
+            <path d="M 100 28 C 166 6, 233 6, 300 28 C 366 50, 433 50, 500 28 C 566 6, 633 6, 700 28 C 766 50, 833 50, 900 28 C 966 6, 1033 6, 1100 28 C 1166 50, 1233 50, 1300 28"
+                  stroke="rgba(255,255,255,0.09)" stroke-width="2.5" fill="none" />
+            <path d="M 100 28 C 166 6, 233 6, 300 28 C 366 50, 433 50, 500 28 C 566 6, 633 6, 700 28 C 766 50, 833 50, 900 28 C 966 6, 1033 6, 1100 28 C 1166 50, 1233 50, 1300 28"
+                  stroke="url(#conduitGrad)" stroke-width="3" fill="none" class="fiber-line-fast" />
+
+            <!-- Node Anchor Dots -->
+            <circle cx="100" cy="28" r="4" fill="#00F0FF" />
+            <circle cx="300" cy="28" r="4" fill="#38BDF8" />
+            <circle cx="500" cy="28" r="4" fill="#7C3AED" />
+            <circle cx="700" cy="28" r="4" fill="#F59E0B" />
+            <circle cx="900" cy="28" r="4" fill="#00F0FF" />
+            <circle cx="1100" cy="28" r="4" fill="#10B981" />
+            <circle cx="1300" cy="28" r="4" fill="#A78BFA" />
+
+            <!-- Active Stage Photon Pulse -->
+            <circle id="photonOrb" cx="100" cy="28" r="7" fill="#00F0FF" filter="url(#photonGlow)">
+              <animate attributeName="r" values="5.5;8.5;5.5" dur="1.1s" repeatCount="indefinite" />
+            </circle>
+          </svg>
+
+          <!-- 7 Interactive Architecture Nodes -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+            <!-- 01 -->
+            <button onclick="selectPipelineStage(0)" id="pNode-0" class="pipeline-node active-node text-left glass-card-inner rounded-2xl p-3.5 cursor-pointer group">
+              <div class="flex items-center justify-between mb-2">
+                <span class="w-7 h-7 rounded-lg bg-cyan-400/15 border border-cyan-400/35 flex items-center justify-center text-cyan-300 font-mono text-xs font-bold">01</span>
+                <span class="text-[10px] font-mono text-cyan-300">RSC / UI</span>
+              </div>
+              <h3 class="text-xs font-bold text-white group-hover:text-cyan-200">Client & Islands</h3>
+              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">RSC HTML stream + Zero-Runtime Hydration islands.</p>
+            </button>
+
+            <!-- 02 -->
+            <button onclick="selectPipelineStage(1)" id="pNode-1" class="pipeline-node text-left glass-card-inner rounded-2xl p-3.5 cursor-pointer group">
+              <div class="flex items-center justify-between mb-2">
+                <span class="w-7 h-7 rounded-lg bg-sky-400/15 border border-sky-400/35 flex items-center justify-center text-sky-300 font-mono text-xs font-bold">02</span>
+                <span class="text-[10px] font-mono text-sky-300">CDN / KV</span>
+              </div>
+              <h3 class="text-xs font-bold text-white group-hover:text-sky-200">Edge Workers</h3>
+              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Global PoP compute & distributed KV cache in 5ms.</p>
+            </button>
+
+            <!-- 03 -->
+            <button onclick="selectPipelineStage(2)" id="pNode-2" class="pipeline-node text-left glass-card-inner rounded-2xl p-3.5 cursor-pointer group">
+              <div class="flex items-center justify-between mb-2">
+                <span class="w-7 h-7 rounded-lg bg-violet-400/15 border border-violet-400/35 flex items-center justify-center text-violet-300 font-mono text-xs font-bold">03</span>
+                <span class="text-[10px] font-mono text-violet-300">STRICT TS</span>
+              </div>
+              <h3 class="text-xs font-bold text-white group-hover:text-violet-200">Typed RPC & DB</h3>
+              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">End-to-end schema inference from DB to JSX props.</p>
+            </button>
+
+            <!-- 04 -->
+            <button onclick="selectPipelineStage(3)" id="pNode-3" class="pipeline-node text-left glass-card-inner rounded-2xl p-3.5 cursor-pointer group">
+              <div class="flex items-center justify-between mb-2">
+                <span class="w-7 h-7 rounded-lg bg-amber-400/15 border border-amber-400/35 flex items-center justify-center text-amber-300 font-mono text-xs font-bold">04</span>
+                <span class="text-[10px] font-mono text-amber-300">VAPID / SW</span>
+              </div>
+              <h3 class="text-xs font-bold text-white group-hover:text-amber-200">SW & Web Push</h3>
+              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Offline cache + p256dh/auth encrypted OS push.</p>
+            </button>
+
+            <!-- 05 -->
+            <button onclick="selectPipelineStage(4)" id="pNode-4" class="pipeline-node text-left glass-card-inner rounded-2xl p-3.5 cursor-pointer group">
+              <div class="flex items-center justify-between mb-2">
+                <span class="w-7 h-7 rounded-lg bg-cyan-400/15 border border-cyan-400/35 flex items-center justify-center text-cyan-300 font-mono text-xs font-bold">05</span>
+                <span class="text-[10px] font-mono text-cyan-300">UDP / H3</span>
+              </div>
+              <h3 class="text-xs font-bold text-white group-hover:text-cyan-200">WebRTC & QUIC</h3>
+              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">SRTP media & multiplexed streams with zero HOL block.</p>
+            </button>
+
+            <!-- 06 -->
+            <button onclick="selectPipelineStage(5)" id="pNode-5" class="pipeline-node text-left glass-card-inner rounded-2xl p-3.5 cursor-pointer group">
+              <div class="flex items-center justify-between mb-2">
+                <span class="w-7 h-7 rounded-lg bg-emerald-400/15 border border-emerald-400/35 flex items-center justify-center text-emerald-300 font-mono text-xs font-bold">06</span>
+                <span class="text-[10px] font-mono text-emerald-300">ZERO-TRUST</span>
+              </div>
+              <h3 class="text-xs font-bold text-white group-hover:text-emerald-200">FIDO2 & Signing</h3>
+              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Origin-bound Passkeys & SubtleCrypto ES256/Ed25519.</p>
+            </button>
+
+            <!-- 07 -->
+            <button onclick="selectPipelineStage(6)" id="pNode-6" class="pipeline-node text-left glass-card-inner rounded-2xl p-3.5 cursor-pointer group border-violet-400/25">
+              <div class="flex items-center justify-between mb-2">
+                <span class="w-7 h-7 rounded-lg bg-violet-500/20 border border-violet-400/45 flex items-center justify-center text-violet-200 font-mono text-xs font-bold">07</span>
+                <span class="text-[10px] font-mono text-violet-300">LATE-2026</span>
+              </div>
+              <h3 class="text-xs font-bold text-white group-hover:text-violet-200">2026 Frontier</h3>
+              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">WebMCP tools, WebGPU/WebNN & OPFS CRDT sync.</p>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 2. MODULE 01 — ISLANDS ARCHITECTURE & REACT SERVER COMPONENTS (RSC)   -->
+    <!-- ===================================================================== -->
+    <section id="mod-islands" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/[0.07] pb-5">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-mono text-violet-300 mb-1">
+            <span>MODULE 01</span>
+            <span>•</span>
+            <span>RENDERING & HYDRATION ARCHITECTURE</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">Islands Architecture & React Server Components (RSC)</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">
+            Toggle between a Legacy Monolithic SPA and Modern RSC + Islands, or click individual UI islands to toggle Static HTML (0 KB) vs. Hydrated on Demand.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 bg-black/55 p-1.5 rounded-2xl border border-white/[0.08] self-start">
+          <button id="btnArchSpa" onclick="setRenderArch('spa')" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition">
+            Legacy Monolithic SPA
+          </button>
+          <button id="btnArchIslands" onclick="setRenderArch('islands')" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-violet-600/30 text-violet-200 border border-violet-400/45 shadow-[0_0_20px_rgba(124,58,237,0.28)] transition">
+            Modern RSC + Islands
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Interactive 4-Component UI Wireframe -->
+        <div class="lg:col-span-7 glass-card-inner rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-slate-300 uppercase tracking-wider">Interactive UI Wireframe (4 Components)</span>
+            <span id="archModeTag" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              RSC STREAM + ISLANDS
+            </span>
+          </div>
+
+          <div class="rounded-xl border border-white/[0.08] bg-[#05070D] p-4 space-y-3">
+            <!-- Component 1: Static Header -->
+            <button onclick="toggleComponentHydration('header')" id="comp-header" class="w-full text-left rounded-xl p-3 border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04] flex items-center justify-between transition-all cursor-pointer">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-500" id="dot-header"></span>
+                <div>
+                  <span class="text-xs font-bold text-slate-200 block">1. Static Header & Mega-Nav</span>
+                  <span class="text-[11px] text-slate-400">Pure server HTML + CSS :has() dropdowns</span>
+                </div>
+              </div>
+              <span id="tag-header" class="text-[10px] font-mono px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300">STATIC HTML (0 KB)</span>
+            </button>
+
+            <!-- Component 2: Hero Article -->
+            <button onclick="toggleComponentHydration('hero')" id="comp-hero" class="w-full text-left rounded-xl p-3.5 border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04] space-y-2 transition-all cursor-pointer">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200">2. Hero Article & Markdown Specs</span>
+                <span id="tag-hero" class="text-[10px] font-mono px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300">RSC STREAM (0 KB)</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Rendered on the server with direct DB access and syntax highlighting—zero markdown parser shipped to browser.
+              </p>
+            </button>
+
+            <!-- Components 3 & 4: Interactive Islands -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Component 3: Interactive Cart Island -->
+              <button onclick="toggleComponentHydration('cart')" id="comp-cart" class="text-left rounded-xl p-3.5 border border-cyan-400/45 bg-cyan-400/[0.08] hover:bg-cyan-400/[0.13] transition-all flex flex-col justify-between cursor-pointer">
+                <div>
+                  <div class="flex items-center justify-between gap-1">
+                    <span class="text-xs font-bold text-cyan-200">3. Interactive Cart Island</span>
+                    <span id="dot-cart" class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                  </div>
+                  <p class="text-[11px] text-slate-300 mt-1">Optimistic mutations + local state</p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-cyan-400/20 flex items-center justify-between">
+                  <span id="tag-cart" class="text-[10px] font-mono text-cyan-300 font-semibold">HYDRATED (6.5 KB)</span>
+                  <span class="text-[10px] font-mono text-white bg-cyan-500/30 px-2 py-0.5 rounded">Toggle</span>
+                </div>
+              </button>
+
+              <!-- Component 4: AI Recommendations Island -->
+              <button onclick="toggleComponentHydration('aiRec')" id="comp-aiRec" class="text-left rounded-xl p-3.5 border border-violet-400/45 bg-violet-500/[0.09] hover:bg-violet-500/[0.15] transition-all flex flex-col justify-between cursor-pointer">
+                <div>
+                  <div class="flex items-center justify-between gap-1">
+                    <span class="text-xs font-bold text-violet-200">4. AI Recommendations Island</span>
+                    <span id="dot-aiRec" class="w-2 h-2 rounded-full bg-violet-400 animate-pulse"></span>
+                  </div>
+                  <p class="text-[11px] text-slate-300 mt-1">client:visible streaming personalization</p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-violet-400/20 flex items-center justify-between">
+                  <span id="tag-aiRec" class="text-[10px] font-mono text-violet-300 font-semibold">HYDRATED (7.5 KB)</span>
+                  <span class="text-[10px] font-mono text-white bg-violet-500/30 px-2 py-0.5 rounded">Toggle</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Core Web Vitals Gauges & Main-Thread Flamegraph -->
+        <div class="lg:col-span-5 glass-card-inner rounded-2xl p-5 flex flex-col justify-between space-y-5">
+          <div>
+            <span class="text-xs font-mono text-slate-300 uppercase tracking-wider">Core Web Vitals Telemetry</span>
+            <div class="grid grid-cols-2 gap-3 mt-3">
+              <div class="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                <span class="text-[11px] font-mono text-slate-400">LCP (Paint)</span>
+                <div id="cwvLcp" class="text-2xl font-mono font-bold text-emerald-400 mt-0.5">0.6s</div>
+                <span id="cwvLcpRating" class="text-[10px] font-mono text-emerald-300">FAST (&lt; 2.5s)</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                <span class="text-[11px] font-mono text-slate-400">INP (Interaction)</span>
+                <div id="cwvInp" class="text-2xl font-mono font-bold text-emerald-400 mt-0.5">18ms</div>
+                <span id="cwvInpRating" class="text-[10px] font-mono text-emerald-300">INSTANT (&lt; 200ms)</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                <span class="text-[11px] font-mono text-slate-400">JS Bundle Size</span>
+                <div id="cwvJs" class="text-2xl font-mono font-bold text-cyan-300 mt-0.5">14.0 KB</div>
+                <span class="text-[10px] font-mono text-slate-400">Gzipped client JS</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                <span class="text-[11px] font-mono text-slate-400">CLS (Stability)</span>
+                <div class="text-2xl font-mono font-bold text-emerald-400 mt-0.5">0.00</div>
+                <span class="text-[10px] font-mono text-emerald-300">ZERO SHIFT</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Animated Main-Thread Execution Flamegraph -->
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="text-slate-400">Main-Thread Execution Flamegraph</span>
+              <span id="waterfallTotalTime" class="text-emerald-400">Total: 112ms</span>
+            </div>
+            <div class="space-y-2 text-[11px] font-mono">
+              <div>
+                <div class="flex justify-between text-slate-400 mb-1"><span>HTML / RSC Stream</span><span id="wfHtmlLabel">38ms</span></div>
+                <div class="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                  <div id="wfHtmlBar" class="h-full bg-gradient-to-r from-cyan-400 to-sky-400 rounded-full transition-all duration-500" style="width: 16%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-slate-400 mb-1"><span>JS Parse & Compile</span><span id="wfJsLabel">44ms</span></div>
+                <div class="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                  <div id="wfJsBar" class="h-full bg-gradient-to-r from-violet-500 to-fuchsia-400 rounded-full transition-all duration-500" style="width: 19%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-slate-400 mb-1"><span>Selective Island Hydration</span><span id="wfHydrateLabel">30ms</span></div>
+                <div class="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                  <div id="wfHydrateBar" class="h-full bg-gradient-to-r from-emerald-400 to-teal-300 rounded-full transition-all duration-500" style="width: 14%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 3. MODULE 02 — EDGE COMPUTING & GLOBAL ROUTING                        -->
+    <!-- ===================================================================== -->
+    <section id="mod-edge" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/[0.07] pb-5">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-mono text-cyan-300 mb-1">
+            <span>MODULE 02</span>
+            <span>•</span>
+            <span>GLOBAL CDN EDGE & DISTRIBUTED COMPUTE</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">Edge Workers + KV Cache vs. Single Origin DB</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">
+            Fire laser packets across global PoPs to compare 5–8ms regional Edge execution against 148–214ms single-origin round-trips.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="setEdgeMode('edge')" id="btnRouteEdge" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 transition">
+            Edge Workers + KV Cache (5–8ms)
+          </button>
+          <button onclick="setEdgeMode('origin')" id="btnRouteOrigin" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-400 bg-white/[0.04] hover:text-white border border-white/[0.08] transition">
+            Single Origin DB (148–214ms)
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <!-- Interactive SVG World Map -->
+        <div class="lg:col-span-8 glass-card-inner rounded-2xl p-4 sm:p-5 relative overflow-hidden">
+          <svg id="edgeMapSvg" viewBox="0 0 800 340" class="w-full h-auto rounded-xl bg-[#04060B] border border-white/[0.06]">
+            <g stroke="rgba(255,255,255,0.04)" stroke-width="1">
+              <line x1="0" y1="85" x2="800" y2="85" />
+              <line x1="0" y1="170" x2="800" y2="170" />
+              <line x1="0" y1="255" x2="800" y2="255" />
+              <line x1="200" y1="0" x2="200" y2="340" />
+              <line x1="400" y1="0" x2="400" y2="340" />
+              <line x1="600" y1="0" x2="600" y2="340" />
+            </g>
+
+            <!-- Stylized Continents -->
+            <g fill="rgba(255,255,255,0.045)" stroke="rgba(0,240,255,0.13)" stroke-width="1">
+              <path d="M95,75 L195,65 L235,115 L205,165 L145,175 L110,130 Z" />
+              <path d="M210,195 L260,205 L275,275 L230,315 L205,260 Z" />
+              <path d="M365,65 L455,60 L475,115 L420,135 L370,120 Z" />
+              <path d="M375,145 L455,145 L475,225 L425,275 L385,220 Z" />
+              <path d="M485,65 L665,70 L695,155 L605,185 L505,150 Z" />
+              <path d="M625,225 L705,225 L715,280 L635,285 Z" />
+            </g>
+
+            <!-- Origin Server (us-east) -->
+            <g transform="translate(205, 122)">
+              <circle r="16" fill="rgba(245, 158, 11, 0.16)" class="pulse-ring" />
+              <circle r="7" fill="#F59E0B" />
+              <text x="12" y="-10" fill="#FBBF24" font-family="JetBrains Mono" font-size="11" font-weight="bold">ORIGIN DB (US-EAST)</text>
+            </g>
+
+            <!-- Edge Nodes -->
+            <g transform="translate(415, 102)">
+              <circle r="13" fill="rgba(0, 240, 255, 0.16)" />
+              <circle r="5.5" fill="#00F0FF" />
+              <text x="10" y="-8" fill="#67E8F9" font-family="JetBrains Mono" font-size="10">EDGE: FRA (EU)</text>
+            </g>
+
+            <g transform="translate(665, 124)">
+              <circle r="13" fill="rgba(0, 240, 255, 0.16)" />
+              <circle r="5.5" fill="#00F0FF" />
+              <text x="-78" y="-10" fill="#67E8F9" font-family="JetBrains Mono" font-size="10">EDGE: NRT (JP)</text>
+            </g>
+
+            <g transform="translate(252, 245)">
+              <circle r="13" fill="rgba(0, 240, 255, 0.16)" />
+              <circle r="5.5" fill="#00F0FF" />
+              <text x="10" y="4" fill="#67E8F9" font-family="JetBrains Mono" font-size="10">EDGE: GRU (BR)</text>
+            </g>
+
+            <!-- Laser Route Conduit -->
+            <path id="edgeActivePath" d="M 438 114 Q 426 105 415 102" stroke="#00F0FF" stroke-width="3.2" fill="none" class="fiber-line-fast" />
+
+            <!-- Animated Laser Packet -->
+            <circle id="edgeLaserDot" cx="438" cy="114" r="5" fill="#FFFFFF" />
+
+            <!-- Active User Pin -->
+            <g id="edgeUserPin" transform="translate(438, 114)">
+              <circle r="12" fill="rgba(16, 185, 129, 0.25)" class="pulse-ring" />
+              <circle r="6" fill="#10B981" stroke="#06070B" stroke-width="2" />
+              <text id="edgeUserLabel" x="11" y="14" fill="#6EE7B7" font-family="JetBrains Mono" font-size="11" font-weight="bold">USER (BERLIN)</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Region Controls & Live Telemetry Log -->
+        <div class="lg:col-span-4 glass-card-inner rounded-2xl p-5 space-y-4">
+          <span class="text-xs font-mono text-slate-300 uppercase tracking-wider block">Select Client Region</span>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="selectEdgeRegion('eu')" id="reg-eu" class="btn-spring p-2.5 rounded-xl text-xs font-mono font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40">
+              Berlin
+            </button>
+            <button onclick="selectEdgeRegion('jp')" id="reg-jp" class="btn-spring p-2.5 rounded-xl text-xs font-mono font-semibold bg-white/[0.04] text-slate-300 border border-white/[0.08]">
+              Tokyo
+            </button>
+            <button onclick="selectEdgeRegion('br')" id="reg-br" class="btn-spring p-2.5 rounded-xl text-xs font-mono font-semibold bg-white/[0.04] text-slate-300 border border-white/[0.08]">
+              São Paulo
+            </button>
+          </div>
+
+          <div class="p-4 rounded-xl bg-black/50 border border-white/[0.06] space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-400">Round-Trip Telemetry</span>
+              <span id="edgeLatencyVal" class="text-2xl font-mono font-bold text-cyan-300">6 ms</span>
+            </div>
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="text-slate-400">Resolution Path</span>
+              <span id="edgeCacheStatus" class="text-emerald-400">EDGE HIT (KV)</span>
+            </div>
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="text-slate-400">Compute PoP</span>
+              <span id="edgePopNode" class="text-slate-200">fra01-worker</span>
+            </div>
+          </div>
+
+          <div id="edgeTelemetryLog" class="p-3 rounded-xl bg-black/60 border border-white/[0.05] font-mono text-[11px] text-cyan-200">
+            [fra01] GET /api/feed → 200 OK (6ms • KV HIT)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 4. MODULE 03 — NATIVE BROWSER SUPERPOWERS                             -->
+    <!-- ===================================================================== -->
+    <section id="mod-native" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+      <div class="border-b border-white/[0.07] pb-5">
+        <div class="flex items-center gap-2 text-xs font-mono text-emerald-300 mb-1">
+          <span>MODULE 03</span>
+          <span>•</span>
+          <span>NATIVE BROWSER SUPERPOWERS</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold text-white">CSS @container Queries, View Transitions & Wasm SIMD Compute</h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Three native browser APIs replacing heavy layout observers, JS animation routers, and single-threaded compute bottlenecks.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 3A: CSS @container Queries -->
+        <div class="glass-card-inner rounded-2xl p-5 flex flex-col justify-between space-y-4">
+          <div class="space-y-1">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-mono font-bold text-cyan-300">03A // CSS @container</span>
+              <span class="cq-badge-mode text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-400/15 text-cyan-200"></span>
+            </div>
+            <p class="text-xs text-slate-400">Drag the width slider to morph the component based on its parent container, not viewport media queries.</p>
+          </div>
+
+          <div class="bg-black/50 p-3 rounded-xl border border-white/[0.06] overflow-hidden">
+            <div id="cqBox" class="cq-viewport mx-auto rounded-xl border border-cyan-400/35 bg-gradient-to-br from-cyan-500/10 to-violet-500/15 p-3.5 transition-all duration-150" style="width: 100%;">
+              <div class="cq-adaptive-grid">
+                <div class="h-14 rounded-lg bg-gradient-to-tr from-cyan-400/30 to-violet-500/30 border border-white/10 flex items-center justify-center font-mono text-xs font-bold text-white">
+                  MEDIA
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white">Intrinsic Card</h4>
+                  <p class="text-[11px] text-slate-300 mt-0.5">Morphs via <code class="text-cyan-300">@container</code></p>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-cyan-400 text-obsidian font-mono text-[11px] font-bold text-center">
+                  Inspect
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-[11px] font-mono text-slate-400">
+              <span>Container Width</span>
+              <span id="cqWidthVal" class="text-cyan-300">540px</span>
+            </div>
+            <input type="range" min="240" max="580" value="540" oninput="resizeCqContainer(this.value)" class="w-full accent-cyan-400 cursor-pointer" />
+          </div>
+        </div>
+
+        <!-- 3B: View Transitions Spatial Gallery -->
+        <div class="glass-card-inner rounded-2xl p-5 flex flex-col justify-between space-y-4">
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-violet-300">03B // VIEW TRANSITIONS API</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-400/15 text-violet-200">SHARED ELEMENT</span>
+            </div>
+            <p class="text-xs text-slate-400">Click any card to morph it seamlessly into the active hero spotlight stage.</p>
+          </div>
+
+          <div id="vtSpotlight" class="rounded-xl p-4 bg-gradient-to-br from-violet-500/20 via-fuchsia-500/10 to-cyan-500/15 border border-violet-400/35 transition-all duration-300">
+            <div class="flex items-center justify-between">
+              <span id="vtSpotTag" class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-black/45 text-violet-200">ZERO-RUNTIME CSS</span>
+              <span id="vtSpotMetric" class="text-xs font-mono font-bold text-cyan-300">120 FPS</span>
+            </div>
+            <h4 id="vtSpotTitle" class="text-base font-bold text-white mt-2">Subgrid & :has() Selectors</h4>
+            <p id="vtSpotDesc" class="text-xs text-slate-300 mt-1 leading-relaxed">
+              Parent-aware styling and aligned nested card tracks without resize-observer JavaScript.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="switchViewTransition(0)" id="vtBtn-0" class="p-2.5 rounded-xl text-left bg-violet-500/20 border border-violet-400/50 transition">
+              <span class="block text-[10px] font-mono text-violet-200">01</span>
+              <span class="text-xs font-semibold text-white truncate block">Subgrid</span>
+            </button>
+            <button onclick="switchViewTransition(1)" id="vtBtn-1" class="p-2.5 rounded-xl text-left bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition">
+              <span class="block text-[10px] font-mono text-slate-400">02</span>
+              <span class="text-xs font-semibold text-white truncate block">Popover API</span>
+            </button>
+            <button onclick="switchViewTransition(2)" id="vtBtn-2" class="p-2.5 rounded-xl text-left bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition">
+              <span class="block text-[10px] font-mono text-slate-400">03</span>
+              <span class="text-xs font-semibold text-white truncate block">Scroll-Driven</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3C: Wasm SIMD vs Single-Thread JS Particle Benchmark -->
+        <div class="glass-card-inner rounded-2xl p-5 flex flex-col justify-between space-y-4">
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-emerald-300">03C // WASM SIMD BENCHMARK</span>
+              <span id="wasmFpsBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-400/15 text-emerald-300">60 FPS • WASM SIMD</span>
+            </div>
+            <p class="text-xs text-slate-400">Compare vectorized Wasm SIMD physics throughput against single-thread JS GC pauses.</p>
+          </div>
+
+          <div id="wasmCanvasWrap" class="relative w-full h-36 rounded-xl overflow-hidden bg-[#04060B] border border-white/[0.08]">
+            <canvas id="wasmCanvas" class="w-full h-full block"></canvas>
+            <div class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[10px] font-mono pointer-events-none">
+              <span class="px-2 py-0.5 rounded bg-black/75 text-slate-300">3,200 N-Body Particles</span>
+              <span id="wasmFrameTime" class="px-2 py-0.5 rounded bg-black/75 text-emerald-300">1.9ms / frame</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="setComputeEngine('wasm')" id="btnEngineWasm" class="btn-spring py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40">
+              ⚡ Wasm SIMD
+            </button>
+            <button onclick="setComputeEngine('js')" id="btnEngineJs" class="btn-spring py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-white/[0.04] text-slate-400 border border-white/[0.08]">
+              Single-Thread JS
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 5. MODULE 04 — OFFLINE-FIRST PWA & ENCRYPTED WEB PUSH                 -->
+    <!-- ===================================================================== -->
+    <section id="mod-pwa" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/[0.07] pb-5">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-mono text-amber-300 mb-1">
+            <span>MODULE 04</span>
+            <span>•</span>
+            <span>OFFLINE-FIRST PWA & ENCRYPTED WEB PUSH</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">Service Worker Interception & VAPID p256dh/auth Web Push</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">
+            Toggle Airplane Mode or close the browser tab completely while <code class="text-amber-300">sw.js</code> wakes in the background to decrypt a push notification.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button onclick="toggleNetworkState()" id="btnNetToggle" class="btn-spring px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-400/35 flex items-center gap-2">
+            <span id="netStatusDot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="netStatusText">Online Mode</span>
+          </button>
+
+          <button onclick="toggleTabState()" id="btnTabToggle" class="btn-spring px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-white/[0.05] text-slate-200 border border-white/[0.1] flex items-center gap-2">
+            <span id="tabStateIcon">🟢</span>
+            <span id="tabStateText">Browser Tab: OPEN</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-7 glass-card-inner rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-slate-300 uppercase tracking-wider">Cryptographic Push Pipeline</span>
+            <span id="swStateBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyan-400/15 text-cyan-300 border border-cyan-400/30">
+              sw.js // ACTIVE
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div id="pushStep1" class="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.07] transition-all">
+              <span class="text-[10px] font-mono text-amber-300 block">1. VAPID JWT + ECDH</span>
+              <h4 class="text-xs font-bold text-white mt-1">p256dh + auth Cipher</h4>
+              <p class="text-[11px] text-slate-400 mt-1">Server signs VAPID ES256 JWT & encrypts payload with browser public key.</p>
+            </div>
+
+            <div id="pushStep2" class="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.07] transition-all">
+              <span class="text-[10px] font-mono text-cyan-300 block">2. VENDOR PUSH RELAY</span>
+              <h4 class="text-xs font-bold text-white mt-1">FCM / APNs Delivery</h4>
+              <p class="text-[11px] text-slate-400 mt-1">Push service delivers opaque ciphertext over OS persistent socket.</p>
+            </div>
+
+            <div id="pushStep3" class="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.07] transition-all">
+              <span class="text-[10px] font-mono text-emerald-300 block">3. SW BACKGROUND WAKE</span>
+              <h4 class="text-xs font-bold text-white mt-1">showNotification()</h4>
+              <p class="text-[11px] text-slate-400 mt-1">Service Worker decrypts message with tab closed & fires OS banner.</p>
+            </div>
+          </div>
+
+          <div id="swCacheBanner" class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-400/25 flex items-center justify-between gap-3">
+            <div class="text-xs">
+              <span class="font-mono font-bold text-emerald-300 block">CacheStorage + Background Sync Ready</span>
+              <span id="swCacheDesc" class="text-slate-300 text-[11px]">Serving instant shell from CacheStorage while revalidating fresh data in background.</span>
+            </div>
+            <span class="font-mono text-xs text-emerald-300 shrink-0">200 OK</span>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 glass-card-inner rounded-2xl p-5 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <span class="text-xs font-mono text-slate-300 uppercase tracking-wider block">Encrypted Push Payload</span>
+            <div>
+              <label class="text-[11px] font-mono text-slate-400 block mb-1">Notification Title</label>
+              <input id="pushInputTitle" type="text" value="Edge Release v2026.11 Live" class="w-full px-3 py-2 rounded-xl bg-black/55 border border-white/[0.1] text-xs text-white focus:outline-none focus:border-cyan-400" />
+            </div>
+            <div>
+              <label class="text-[11px] font-mono text-slate-400 block mb-1">Encrypted Message Body</label>
+              <input id="pushInputBody" type="text" value="Zero-downtime rollout verified across 42 global PoPs." class="w-full px-3 py-2 rounded-xl bg-black/55 border border-white/[0.1] text-xs text-white focus:outline-none focus:border-cyan-400" />
+            </div>
+          </div>
+
+          <button onclick="triggerSimulatedWebPush()" class="btn-spring w-full py-2.5 px-4 rounded-xl text-xs font-semibold bg-gradient-to-r from-amber-400 to-orange-500 text-obsidian shadow-[0_0_24px_rgba(245,158,11,0.3)] flex items-center justify-center gap-2">
+            <span>🔔 Encrypt & Dispatch Web Push</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 6. MODULE 05 — END-TO-END TYPE SAFETY (DB -> RPC -> UI PROPS)         -->
+    <!-- ===================================================================== -->
+    <section id="mod-types" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/[0.07] pb-5">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-mono text-cyan-300 mb-1">
+            <span>MODULE 05</span>
+            <span>•</span>
+            <span>END-TO-END TYPE SAFETY</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">Live TypeScript Pipeline: DB Schema → Server RPC → UI Props</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">
+            Toggle <code class="text-cyan-300">price</code> between <code class="text-emerald-300">number</code> and <code class="text-rose-300">string</code> to watch compile-time inference or red squiggly type errors propagate across all 3 layers instantly.
+          </p>
+        </div>
+
+        <!-- Price Type Toggle -->
+        <div class="flex items-center gap-2 bg-black/55 p-1.5 rounded-2xl border border-white/[0.08] self-start">
+          <button onclick="setPriceFieldType('number')" id="btnPriceNum" class="px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 transition">
+            price: number ✓
+          </button>
+          <button onclick="setPriceFieldType('string')" id="btnPriceStr" class="px-3.5 py-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-rose-200 transition">
+            price: string ⚠️
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Column 1: Database Schema -->
+        <div id="typeCard1" class="glass-card-inner rounded-2xl p-4 border-emerald-400/30 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-mono font-bold text-emerald-300">1. DATABASE SCHEMA</span>
+            <span class="text-[10px] font-mono text-slate-400">schema.ts</span>
+          </div>
+          <pre id="codeSchema" class="text-[11px] font-mono text-slate-200 bg-black/55 p-3 rounded-xl overflow-x-auto leading-relaxed"></pre>
+        </div>
+
+        <!-- Column 2: Server RPC -->
+        <div id="typeCard2" class="glass-card-inner rounded-2xl p-4 border-cyan-400/30 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-mono font-bold text-cyan-300">2. SERVER RPC / tRPC</span>
+            <span id="rpcTypeBadge" class="text-[10px] font-mono text-cyan-300">Inferred: number</span>
+          </div>
+          <pre id="codeRpc" class="text-[11px] font-mono text-slate-200 bg-black/55 p-3 rounded-xl overflow-x-auto leading-relaxed"></pre>
+        </div>
+
+        <!-- Column 3: React UI Props -->
+        <div id="typeCard3" class="glass-card-inner rounded-2xl p-4 border-violet-400/30 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-mono font-bold text-violet-300">3. REACT UI PROPS</span>
+            <span id="uiTypeBadge" class="text-[10px] font-mono text-emerald-400">0 Type Errors</span>
+          </div>
+          <pre id="codeUi" class="text-[11px] font-mono text-slate-200 bg-black/55 p-3 rounded-xl overflow-x-auto leading-relaxed"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 7. MODULE 06 — REAL-TIME TRANSPORT & ZERO-TRUST CRYPTOGRAPHY          -->
+    <!-- ===================================================================== -->
+    <section id="mod-realtime-crypto" class="space-y-8">
+      <!-- Lab 06A: WebRTC vs WebTransport (QUIC) vs WebSockets (TCP) -->
+      <div id="lab-webrtc" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/[0.07] pb-5">
+          <div>
+            <div class="flex items-center gap-2 text-xs font-mono text-cyan-300 mb-1">
+              <span>MODULE 06 • LAB 06A</span>
+              <span>•</span>
+              <span>REAL-TIME TRANSPORT & HEAD-OF-LINE BLOCKING</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold text-white">WebRTC vs. WebTransport (HTTP/3 QUIC) vs. WebSockets (TCP)</h2>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 bg-black/55 p-1.5 rounded-2xl border border-white/[0.08]">
+            <button onclick="setTransportProtocol('ws')" id="btnProtoWs" class="px-3 py-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition">
+              WebSockets (TCP)
+            </button>
+            <button onclick="setTransportProtocol('webrtc')" id="btnProtoWebrtc" class="px-3 py-2 rounded-xl text-xs font-mono font-semibold bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 transition">
+              WebRTC (UDP/SRTP)
+            </button>
+            <button onclick="setTransportProtocol('wt')" id="btnProtoWt" class="px-3 py-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition">
+              WebTransport (QUIC)
+            </button>
+          </div>
+        </div>
+
+        <!-- Mental Model & Stress Toggles -->
+        <div class="rounded-2xl p-4 bg-cyan-950/25 border border-cyan-400/20 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <p id="transportMentalModel" class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+            <strong>WebRTC</strong> punches through NAT routers via <strong>ICE/STUN</strong>, exchanges keys with <strong>DTLS</strong>, and streams media over <strong>UDP (SRTP)</strong>—so dropped video frames never block voice audio or data channels.
+          </p>
+          <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <button onclick="togglePacketLoss()" id="btnPacketLoss" class="btn-spring px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold bg-white/[0.06] hover:bg-rose-500/20 text-slate-200 border border-white/[0.12] flex items-center gap-2">
+              <span id="lossDot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span id="lossBtnLabel">15% Packet Loss: OFF</span>
+            </button>
+            <button onclick="toggleE2eeStreams()" id="btnE2eeToggle" class="btn-spring px-3 py-2.5 rounded-xl text-xs font-mono font-semibold bg-violet-500/20 text-violet-200 border border-violet-400/40">
+              🔒 E2EE Insertable Streams: ON
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-Step Handshake Status -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="p-3 rounded-xl bg-cyan-400/10 border border-cyan-400/35 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-mono text-cyan-300 block">HANDSHAKE 01</span>
+              <span id="hsStep1Title" class="text-xs font-bold text-white">ICE / STUN NAT Traversal</span>
+            </div>
+            <span class="text-xs font-mono text-emerald-400">12ms ✓</span>
+          </div>
+          <div class="p-3 rounded-xl bg-violet-400/10 border border-violet-400/35 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-mono text-violet-300 block">HANDSHAKE 02</span>
+              <span id="hsStep2Title" class="text-xs font-bold text-white">DTLS Key Exchange</span>
+            </div>
+            <span class="text-xs font-mono text-emerald-400">18ms ✓</span>
+          </div>
+          <div class="p-3 rounded-xl bg-emerald-400/10 border border-emerald-400/35 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-mono text-emerald-300 block">HANDSHAKE 03</span>
+              <span id="hsStep3Title" class="text-xs font-bold text-white">SRTP Media + SCTP Data</span>
+            </div>
+            <span class="text-xs font-mono text-emerald-400">ACTIVE</span>
+          </div>
+        </div>
+
+        <!-- 4-Lane Animated Packet Highway Canvas -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div class="lg:col-span-8 glass-card-inner rounded-2xl p-4">
+            <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-2">
+              <span>SENDER (BROWSER)</span>
+              <span id="highwayBadge" class="text-cyan-300">4 INDEPENDENT UDP CHANNELS</span>
+              <span>RECEIVER (SFU / PEER)</span>
+            </div>
+            <div id="transportCanvasWrap" class="w-full h-52 rounded-xl overflow-hidden bg-[#04060B] border border-white/[0.08]">
+              <canvas id="transportCanvas" class="w-full h-full block"></canvas>
+            </div>
+          </div>
+
+          <div class="lg:col-span-4 glass-card-inner rounded-2xl p-5 space-y-4">
+            <span class="text-xs font-mono text-slate-300 uppercase tracking-wider block">Transport Telemetry</span>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3 rounded-xl bg-black/50 border border-white/[0.06]">
+                <span class="text-[10px] font-mono text-slate-400">MEDIA DELAY</span>
+                <div id="rtLatencyVal" class="text-xl font-mono font-bold text-cyan-300 mt-0.5">18 ms</div>
+              </div>
+              <div class="p-3 rounded-xl bg-black/50 border border-white/[0.06]">
+                <span class="text-[10px] font-mono text-slate-400">HOL BLOCKING</span>
+                <div id="rtHolVal" class="text-xl font-mono font-bold text-emerald-400 mt-0.5">NONE</div>
+              </div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-black/50 border border-white/[0.06] space-y-2 text-xs font-mono">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Wire Protocol</span>
+                <span id="rtWireProto" class="text-white">UDP (SRTP + DTLS)</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Frame Encryption</span>
+                <span id="rtE2eeState" class="text-violet-300">E2EE Frame Cipher</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lab 06B: FIDO2 / WebAuthn Passkey Phishing Simulator -->
+      <div id="lab-fido2" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/[0.07] pb-5">
+          <div>
+            <div class="flex items-center gap-2 text-xs font-mono text-emerald-300 mb-1">
+              <span>MODULE 06 • LAB 06B</span>
+              <span>•</span>
+              <span>FIDO2 / WEBAUTHN PASSKEYS</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">Origin-Bound Passkey Phishing Resistance Simulator</h3>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 bg-black/55 p-1.5 rounded-2xl border border-white/[0.08]">
+            <button onclick="setFidoDomain('legit')" id="btnFidoLegit" class="px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 transition">
+              🔒 https://app.modernstack.dev
+            </button>
+            <button onclick="setFidoDomain('phish')" id="btnFidoPhish" class="px-3.5 py-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-rose-200 transition">
+              ⚠️ https://app-modernstack.dev (Phishing)
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div id="fidoCard1" class="glass-card-inner rounded-2xl p-5 space-y-2.5 transition-all">
+            <span class="text-xs font-mono font-bold text-cyan-300 block">1. RELYING PARTY CHALLENGE</span>
+            <h4 class="text-sm font-bold text-white">rpId: modernstack.dev</h4>
+            <p class="text-xs text-slate-400">Server sends a single-use 32-byte cryptographic nonce.</p>
+            <div id="fidoChallengeVal" class="p-2.5 rounded-xl bg-black/55 font-mono text-[11px] text-cyan-300">9f82c1a4e70b...84fa</div>
+          </div>
+
+          <div id="fidoCard2" class="glass-card-inner rounded-2xl p-5 space-y-2.5 transition-all">
+            <span class="text-xs font-mono font-bold text-violet-300 block">2. SECURE ENCLAVE + ORIGIN BINDING</span>
+            <h4 class="text-sm font-bold text-white">Hardware ES256 Signature</h4>
+            <p class="text-xs text-slate-400">Browser binds active tab origin into <code class="text-violet-200">clientDataJSON</code>.</p>
+            <div class="p-2.5 rounded-xl bg-black/55 font-mono text-[11px]">
+              Origin: <span id="fidoOriginReadout" class="text-emerald-300 font-bold">https://app.modernstack.dev</span>
+            </div>
+          </div>
+
+          <div id="fidoCard3" class="glass-card-inner rounded-2xl p-5 space-y-2.5 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-emerald-300">3. VERIFICATION VERDICT</span>
+              <span id="fidoVerdictBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/35">
+                VERIFIED ✓
+              </span>
+            </div>
+            <h4 id="fidoVerdictTitle" class="text-sm font-bold text-white">rpIdHash & ES256 Signature Match</h4>
+            <p id="fidoVerdictDesc" class="text-xs text-slate-300 leading-relaxed">
+              Public key verifies <code class="text-cyan-300">SHA256(rpId)</code> and challenge signature. Authenticated!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lab 06C: Live Browser Key Signing Lab (window.crypto.subtle) -->
+      <div id="lab-signing" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/[0.07] pb-5">
+          <div>
+            <div class="flex items-center gap-2 text-xs font-mono text-violet-300 mb-1">
+              <span>MODULE 06 • LAB 06C</span>
+              <span>•</span>
+              <span>LIVE WEB CRYPTO API (window.crypto.subtle)</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">Browser Key Signing & DPoP Token Binding Lab</h3>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-1.5 bg-black/55 p-1.5 rounded-2xl border border-white/[0.08]">
+            <button onclick="selectSigningAlgo('ES256')" id="algoBtn-ES256" class="px-3 py-1.5 rounded-xl text-xs font-mono font-semibold bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 transition">
+              ES256 (ECDSA P-256)
+            </button>
+            <button onclick="selectSigningAlgo('HS256')" id="algoBtn-HS256" class="px-3 py-1.5 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition">
+              HMAC-SHA256
+            </button>
+            <button onclick="selectSigningAlgo('DPoP')" id="algoBtn-DPoP" class="px-3 py-1.5 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition">
+              DPoP Token Binding
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-5 glass-card-inner rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-mono text-slate-300 uppercase">Editable JSON Payload</label>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300">SubtleCrypto Live</span>
+              </div>
+              <textarea id="signPayloadInput" rows="4" class="w-full p-3 rounded-xl bg-black/60 border border-white/[0.1] font-mono text-xs text-cyan-200 focus:outline-none focus:border-cyan-400 leading-relaxed">{
+  "sub": "architect_01",
+  "role": "viewer",
+  "scope": "read:telemetry"
+}</textarea>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="generateRealCryptoKey()" class="btn-spring py-2.5 px-2.5 rounded-xl text-xs font-mono font-semibold bg-white/[0.06] hover:bg-white/[0.12] text-white border border-white/[0.1]">
+                🔑 New Key
+              </button>
+              <button onclick="signCurrentPayload()" class="btn-spring py-2.5 px-2.5 rounded-xl text-xs font-mono font-bold bg-gradient-to-r from-cyan-400 to-violet-600 text-obsidian">
+                ✍️ Sign
+              </button>
+              <button onclick="tamperOrReplayTest()" class="btn-spring py-2.5 px-2.5 rounded-xl text-xs font-mono font-semibold bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-400/40">
+                🧪 Tamper Payload
+              </button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 glass-card-inner rounded-2xl p-5 space-y-3.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-mono text-slate-300 uppercase">Cryptographic Signature Output</span>
+              <span id="sigVerifyBadge" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+                SIGNATURE VERIFIED ✓
+              </span>
+            </div>
+
+            <div class="p-3 rounded-xl bg-black/55 border border-white/[0.06] space-y-1">
+              <span id="keyTypeLabel" class="text-[10px] font-mono text-slate-400 block">PUBLIC KEY (ECDSA P-256 JWK)</span>
+              <div id="cryptoPubKeyOut" class="font-mono text-[11px] text-slate-300 break-all">Generating key...</div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-black/55 border border-white/[0.06] space-y-1">
+              <div class="flex justify-between text-[10px] font-mono text-slate-400">
+                <span>DETACHED SIGNATURE / DPoP PROOF</span>
+                <span id="sigTimeLabel" class="text-emerald-400">0.3ms</span>
+              </div>
+              <div id="cryptoSigOut" class="font-mono text-[11px] text-violet-300 break-all">...</div>
+            </div>
+
+            <div id="sigStatusBanner" class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-400/25 text-xs text-emerald-200 leading-relaxed">
+              ✓ Signature verified mathematically via window.crypto.subtle.verify().
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 8. MODULE 07 — THE LATE-2026 BROWSER FRONTIER                         -->
+    <!-- ===================================================================== -->
+    <section id="mod-frontier" class="space-y-8">
+      <!-- Frontier Banner -->
+      <div class="glass-panel rounded-3xl p-6 sm:p-8 border-violet-400/30">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="space-y-2 max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/15 border border-violet-400/35 text-violet-200 text-xs font-mono">
+              <span>MODULE 07</span>
+              <span>•</span>
+              <span>THE LATE-2026 BROWSER FRONTIER</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Agentic WebMCP, Local-First OPFS CRDTs & Zero-JS Interop 2026
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              By late 2026, browsers expose native structured tool registries for AI agents (<code class="text-cyan-300">navigator.modelContext</code>), run SQLite + CRDT sync engines directly inside OPFS workers, and compute CSS anchor positioning & GPU neural inference natively.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs font-mono shrink-0">
+            <span class="px-3 py-1.5 rounded-xl bg-cyan-400/10 text-cyan-300 border border-cyan-400/25">WebMCP</span>
+            <span class="px-3 py-1.5 rounded-xl bg-emerald-400/10 text-emerald-300 border border-emerald-400/25">OPFS SQLite + CRDT</span>
+            <span class="px-3 py-1.5 rounded-xl bg-violet-400/10 text-violet-300 border border-violet-400/25">Anchor + WebGPU/WebNN</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- LAB 07A: WebMCP (navigator.modelContext) AGENT INSPECTOR            -->
+      <!-- =================================================================== -->
+      <div id="lab-webmcp" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/[0.07] pb-5">
+          <div>
+            <div class="flex items-center gap-2 text-xs font-mono text-cyan-300 mb-1">
+              <span>LAB 07A</span>
+              <span>•</span>
+              <span>THE AGENTIC WEB (navigator.modelContext)</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">WebMCP Agent Inspector: Native Tool Registry vs. Legacy DOM Scraping</h3>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="flex bg-black/55 p-1 rounded-2xl border border-white/[0.08]">
+              <button onclick="setWebMcpMode('webmcp')" id="btnMcpNative" class="px-3 py-1.5 rounded-xl text-xs font-mono font-semibold bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 transition">
+                WebMCP Tool Registry
+              </button>
+              <button onclick="setWebMcpMode('scrape')" id="btnMcpScrape" class="px-3 py-1.5 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition">
+                Legacy DOM Scraping
+              </button>
+            </div>
+            <button onclick="runWebMcpAgentTask()" id="btnRunMcpTask" class="btn-spring px-4 py-2.5 rounded-xl text-xs font-mono font-bold bg-gradient-to-r from-cyan-400 to-violet-600 text-obsidian shadow-[0_0_24px_rgba(0,240,255,0.3)]">
+              ▶ Run AI Agent Task
+            </button>
+          </div>
+        </div>
+
+        <!-- Split Comparison & Live Execution -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Left: Registered WebMCP Tool Schema vs Brittle DOM -->
+          <div class="lg:col-span-6 glass-card-inner rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span id="mcpSourceTitle" class="text-xs font-mono font-bold text-cyan-300">navigator.modelContext.registerTool()</span>
+              <span id="mcpTokenBadge" class="text-[10px] font-mono px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300">-67% Agent Tokens</span>
+            </div>
+            <pre id="mcpSchemaCode" class="text-[11px] font-mono text-slate-200 bg-black/60 p-3.5 rounded-xl overflow-x-auto leading-relaxed border border-white/[0.06]"></pre>
+          </div>
+
+          <!-- Right: Live Agent Execution & Structured JSON Output -->
+          <div class="lg:col-span-6 glass-card-inner rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-mono text-slate-300 uppercase">Agent Task: "Filter flights under €400 & export summary"</span>
+                <span id="mcpExecTime" class="text-xs font-mono font-bold text-emerald-400">42ms</span>
+              </div>
+              <div id="mcpExecLog" class="p-3.5 rounded-xl bg-black/65 border border-white/[0.06] font-mono text-[11px] text-slate-200 space-y-1.5 min-h-[140px]">
+                <div class="text-cyan-300">[agent] Discovered 2 tools via navigator.modelContext</div>
+                <div class="text-slate-300">[invoke] searchFlights({"maxPriceEur": 400, "currency": "EUR"})</div>
+                <div class="text-emerald-300">[result] 2 direct flights matched (BER→NRT €389, BER→LIS €142) • Auth session reused ✓</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 text-center font-mono">
+              <div class="p-2.5 rounded-xl bg-black/45 border border-white/[0.05]">
+                <span class="text-[10px] text-slate-400 block">EXECUTION</span>
+                <span id="mcpStatSpeed" class="text-sm font-bold text-cyan-300">42 ms</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-black/45 border border-white/[0.05]">
+                <span class="text-[10px] text-slate-400 block">RELIABILITY</span>
+                <span id="mcpStatRel" class="text-sm font-bold text-emerald-400">99.9%</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-black/45 border border-white/[0.05]">
+                <span class="text-[10px] text-slate-400 block">AUTH CONTEXT</span>
+                <span id="mcpStatAuth" class="text-sm font-bold text-violet-300">Native Session</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- LAB 07B: LOCAL-FIRST SYNC ENGINE & OPFS SQLITE VISUALIZER           -->
+      <!-- =================================================================== -->
+      <div id="lab-localfirst" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/[0.07] pb-5">
+          <div>
+            <div class="flex items-center gap-2 text-xs font-mono text-emerald-300 mb-1">
+              <span>LAB 07B</span>
+              <span>•</span>
+              <span>OPFS SQLITE WASM + CRDT SYNC ENGINE</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">Local-First Dual-Device Sync Engine (0.2ms Zero-Spinner UI)</h3>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1">
+              Toggle Airplane Mode on either device, mutate tasks locally in OPFS SQLite at 0.2ms, and reconnect to watch CRDT deltas converge conflict-free.
+            </p>
+          </div>
+
+          <div id="crdtBridgeBadge" class="px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-400/35 self-start">
+            ⇄ CRDT DELTA BRIDGE: CONVERGED
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-11 gap-4 items-stretch">
+          <!-- Device A: MacBook Pro -->
+          <div class="lg:col-span-5 glass-card-inner rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <span class="text-xs font-mono font-bold text-cyan-300 block">💻 DEVICE A • MACBOOK PRO</span>
+                <span class="text-[11px] font-mono text-slate-400">OPFS SQLite Worker • Write: <strong class="text-emerald-400">0.2ms</strong></span>
+              </div>
+              <button onclick="toggleDeviceOffline('mac')" id="btnOfflineMac" class="btn-spring px-3 py-1.5 rounded-xl text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-400/35">
+                Online
+              </button>
+            </div>
+
+            <div id="macTaskList" class="space-y-2"></div>
+
+            <div class="flex gap-2">
+              <button onclick="mutateLocalDevice('mac', 'toggle')" class="btn-spring flex-1 py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-cyan-400/15 hover:bg-cyan-400/25 text-cyan-200 border border-cyan-400/35">
+                ✓ Toggle Task (0.2ms)
+              </button>
+              <button onclick="mutateLocalDevice('mac', 'inc')" class="btn-spring py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-white/[0.06] hover:bg-white/[0.12] text-white border border-white/[0.1]">
+                +1 Counter
+              </button>
+            </div>
+          </div>
+
+          <!-- Center CRDT Delta Stream Bridge -->
+          <div class="lg:col-span-1 flex flex-col items-center justify-center py-2">
+            <div id="crdtPulsePipe" class="w-full lg:w-10 h-10 lg:h-40 rounded-2xl bg-black/50 border border-white/[0.08] flex flex-col items-center justify-center gap-1 p-1.5 text-center">
+              <span id="crdtArrowTop" class="text-cyan-400 font-mono text-xs font-bold">⇄</span>
+              <span class="text-[9px] font-mono text-slate-400 uppercase tracking-tighter">CRDT</span>
+              <span id="crdtClockVal" class="text-[10px] font-mono text-emerald-300 font-bold">v4</span>
+            </div>
+          </div>
+
+          <!-- Device B: iPhone -->
+          <div class="lg:col-span-5 glass-card-inner rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <span class="text-xs font-mono font-bold text-violet-300 block">📱 DEVICE B • IPHONE 17 PRO</span>
+                <span class="text-[11px] font-mono text-slate-400">OPFS SQLite Worker • Write: <strong class="text-emerald-400">0.2ms</strong></span>
+              </div>
+              <button onclick="toggleDeviceOffline('iphone')" id="btnOfflineIphone" class="btn-spring px-3 py-1.5 rounded-xl text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-400/35">
+                Online
+              </button>
+            </div>
+
+            <div id="iphoneTaskList" class="space-y-2"></div>
+
+            <div class="flex gap-2">
+              <button onclick="mutateLocalDevice('iphone', 'toggle')" class="btn-spring flex-1 py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-violet-500/20 hover:bg-violet-500/30 text-violet-200 border border-violet-400/35">
+                ✓ Toggle Task (0.2ms)
+              </button>
+              <button onclick="mutateLocalDevice('iphone', 'inc')" class="btn-spring py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-white/[0.06] hover:bg-white/[0.12] text-white border border-white/[0.1]">
+                +1 Counter
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- LAB 07C: ZERO-JS INTEROP 2026 CSS + WEBGPU / WEBNN INFERENCE METER  -->
+      <!-- =================================================================== -->
+      <div id="lab-interop-webgpu" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- 07C-1: CSS Anchor Positioning + contrast-color() Playground -->
+        <div class="lg:col-span-6 glass-panel rounded-3xl p-6 sm:p-7 flex flex-col justify-between space-y-5">
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-cyan-300">LAB 07C-1 • INTEROP 2026 CSS</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-400/15 text-cyan-200">ZERO-JS POPOVER</span>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-white">CSS Anchor Positioning & <code class="text-cyan-300">contrast-color()</code></h3>
+            <p class="text-xs text-slate-400">
+              Drag the anchor trigger around the stage and pick any brand hue—watch the tethered popover auto-flip edges and compute WCAG-compliant foreground text contrast natively.
+            </p>
+          </div>
+
+          <!-- Interactive Bounded Stage -->
+          <div id="anchorStage" class="relative w-full h-56 rounded-2xl bg-[#04060B] border border-white/[0.08] overflow-hidden select-none touch-none">
+            <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(rgba(255,255,255,0.25) 1px, transparent 1px); background-size: 16px 16px;"></div>
+
+            <!-- Draggable Anchor Trigger -->
+            <button id="anchorTrigger" style="left: 110px; top: 115px; background-color: #00F0FF; color: #06070B;"
+              class="absolute px-3.5 py-2 rounded-xl font-mono text-xs font-extrabold shadow-lg cursor-grab active:cursor-grabbing transition-colors">
+              ✥ Drag Anchor
+            </button>
+
+            <!-- Tethered Auto-Flipping Popover -->
+            <div id="anchorPopover" style="left: 110px; top: 34px;"
+              class="absolute w-48 p-3 rounded-xl bg-slate-900/95 border border-cyan-400/45 shadow-2xl pointer-events-none transition-all duration-150">
+              <div class="flex items-center justify-between text-[10px] font-mono text-cyan-300 mb-1">
+                <span>position-try-fallbacks</span>
+                <span id="anchorFlipLabel">TOP</span>
+              </div>
+              <p class="text-[11px] text-slate-200 leading-snug">
+                Auto-flipped to stay inside viewport bounds with zero Popper.js!
+              </p>
+            </div>
+          </div>
+
+          <!-- Brand Color Swatches for contrast-color() -->
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-mono text-slate-400">Swatch:</span>
+              <button onclick="setAnchorColor('#00F0FF')" class="w-6 h-6 rounded-lg bg-[#00F0FF] border border-white/30" title="Electric Cyan"></button>
+              <button onclick="setAnchorColor('#7C3AED')" class="w-6 h-6 rounded-lg bg-[#7C3AED] border border-white/30" title="Deep Violet"></button>
+              <button onclick="setAnchorColor('#F59E0B')" class="w-6 h-6 rounded-lg bg-[#F59E0B] border border-white/30" title="Amber"></button>
+              <button onclick="setAnchorColor('#1E1B4B')" class="w-6 h-6 rounded-lg bg-[#1E1B4B] border border-white/30" title="Midnight Indigo"></button>
+            </div>
+            <span id="contrastReadout" class="text-[11px] font-mono text-emerald-300">contrast-color() → #06070B (14.2:1)</span>
+          </div>
+        </div>
+
+        <!-- 07C-2: WebGPU / WebNN On-Device Inference Meter -->
+        <div class="lg:col-span-6 glass-panel rounded-3xl p-6 sm:p-7 flex flex-col justify-between space-y-5">
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-violet-300">LAB 07C-2 • IN-BROWSER AI SILICON</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-400/15 text-violet-200">0ms CLOUD LATENCY</span>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-white">WebGPU & WebNN On-Device Inference Meter</h3>
+            <p class="text-xs text-slate-400">
+              Benchmark a quantized 3B LLM + Whisper audio stream running locally in the browser across CPU JS, WebGPU WGSL Compute Shaders, and WebNN NPU.
+            </p>
+          </div>
+
+          <!-- Hardware Backend Selector -->
+          <div class="grid grid-cols-3 gap-2 bg-black/55 p-1.5 rounded-2xl border border-white/[0.08]">
+            <button onclick="setInferenceBackend('cpu')" id="btnInfCpu" class="py-2 px-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition">
+              CPU Wasm/JS
+            </button>
+            <button onclick="setInferenceBackend('webgpu')" id="btnInfWebgpu" class="py-2 px-2 rounded-xl text-xs font-mono font-semibold bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 transition">
+              WebGPU WGSL
+            </button>
+            <button onclick="setInferenceBackend('webnn')" id="btnInfWebnn" class="py-2 px-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition">
+              WebNN NPU
+            </button>
+          </div>
+
+          <!-- Live Token Stream & Telemetry Bars -->
+          <div class="space-y-3">
+            <div class="grid grid-cols-3 gap-3">
+              <div class="p-3 rounded-xl bg-black/50 border border-white/[0.06]">
+                <span class="text-[10px] font-mono text-slate-400">THROUGHPUT</span>
+                <div id="infTokSec" class="text-xl font-mono font-bold text-cyan-300 mt-0.5">68 tok/s</div>
+              </div>
+              <div class="p-3 rounded-xl bg-black/50 border border-white/[0.06]">
+                <span class="text-[10px] font-mono text-slate-400">POWER DRAW</span>
+                <div id="infPower" class="text-xl font-mono font-bold text-emerald-400 mt-0.5">4.2 W</div>
+              </div>
+              <div class="p-3 rounded-xl bg-black/50 border border-white/[0.06]">
+                <span class="text-[10px] font-mono text-slate-400">CLOUD COST</span>
+                <div class="text-xl font-mono font-bold text-violet-300 mt-0.5">$0.00</div>
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-black/60 border border-white/[0.06] space-y-2">
+              <div class="flex items-center justify-between text-[11px] font-mono">
+                <span id="infShaderLabel" class="text-cyan-300">WGSL Matrix-Mul Compute Pipeline</span>
+                <button onclick="streamLocalTokens()" class="text-xs px-2.5 py-0.5 rounded bg-white/[0.08] hover:bg-white/[0.15] text-white">↻ Stream Prompt</button>
+              </div>
+              <p id="infStreamOutput" class="font-mono text-xs text-slate-200 leading-relaxed min-h-[42px]">
+                Quantized 4-bit weights loaded into GPU buffer. Streaming private local summary at 68 tokens/sec...
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-mono">
+      <div>MODERN STACK // 2026 — Interactive Web Architecture & Frontier Simulator</div>
+      <div>RSC • Islands • Edge • Wasm • VAPID • WebRTC • QUIC • FIDO2 • WebMCP • OPFS • WebGPU</div>
+    </footer>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- 9. AGENTIC COMMAND BAR MODAL (⌘K)                                     -->
+  <!-- ===================================================================== -->
+  <div id="commandModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="glass-panel max-w-xl w-full rounded-2xl p-5 border-cyan-400/35 shadow-2xl space-y-4">
+      <div class="flex items-center gap-3 border-b border-white/[0.08] pb-3">
+        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-400/20 text-cyan-300">AI AGENT</span>
+        <input id="agentCommandInput" type="text" oninput="filterAgentPresets(this.value)" placeholder="Filter or execute live demo across all 7 modules..." class="flex-1 bg-transparent text-sm text-white placeholder-slate-400 focus:outline-none" onkeydown="if(event.key==='Enter') runTopFilteredPreset()" />
+        <button onclick="closeCommandModal()" class="text-xs font-mono text-slate-400 hover:text-white px-2 py-1 rounded bg-white/[0.06]">ESC</button>
+      </div>
+
+      <div id="agentPresetList" class="space-y-1.5 max-h-80 overflow-y-auto pr-1"></div>
+
+      <div id="agentLogBox" class="p-3 rounded-xl bg-black/60 border border-emerald-400/30 font-mono text-[11px] text-emerald-300 hidden"></div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT ARCHITECTURE ENGINE & INTERACTIVE CONTROLLERS              -->
+  <!-- ===================================================================== -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. 7-STAGE CINEMA ARCHITECTURAL PIPELINE & AUTO-TOUR
+    // -------------------------------------------------------------------------
+    const pipelineStages = [
+      {
+        badge: "STAGE 01 / 07",
+        caption: "Client & Islands stream server-rendered HTML with zero JS overhead, hydrating only interactive islands on demand.",
+        latency: "12ms",
+        js: "14.0 KB",
+        role: "RSC + Islands",
+        orbX: 100,
+        glow: "rgba(0, 240, 255, 0.14)"
+      },
+      {
+        badge: "STAGE 02 / 07",
+        caption: "Edge Workers execute globally at CDN PoPs within 5–8ms, verifying JWTs and serving KV cache hits.",
+        latency: "6ms",
+        js: "14.0 KB",
+        role: "Edge + KV",
+        orbX: 300,
+        glow: "rgba(56, 189, 248, 0.15)"
+      },
+      {
+        badge: "STAGE 03 / 07",
+        caption: "Typed RPC & DB propagate strict TypeScript schemas end-to-end from database columns into React props.",
+        latency: "15ms",
+        js: "14.0 KB",
+        role: "End-to-End TS",
+        orbX: 500,
+        glow: "rgba(124, 58, 237, 0.16)"
+      },
+      {
+        badge: "STAGE 04 / 07",
+        caption: "Service Worker intercepts offline requests and wakes in the background to decrypt VAPID p256dh/auth Web Push.",
+        latency: "0.4ms",
+        js: "14.0 KB",
+        role: "Offline + Push",
+        orbX: 700,
+        glow: "rgba(245, 158, 11, 0.15)"
+      },
+      {
+        badge: "STAGE 05 / 07",
+        caption: "WebRTC (SRTP) & WebTransport (HTTP/3 QUIC) stream multiplexed UDP media & data without TCP head-of-line blocking.",
+        latency: "18ms",
+        js: "14.0 KB",
+        role: "UDP / QUIC",
+        orbX: 900,
+        glow: "rgba(0, 240, 255, 0.16)"
+      },
+      {
+        badge: "STAGE 06 / 07",
+        caption: "FIDO2 Passkeys bind logins to the exact browser origin while SubtleCrypto signs payloads with ES256 & DPoP.",
+        latency: "0.3ms",
+        js: "14.0 KB",
+        role: "Zero-Trust Auth",
+        orbX: 1100,
+        glow: "rgba(16, 185, 129, 0.15)"
+      },
+      {
+        badge: "STAGE 07 / 07",
+        caption: "Late-2026 Frontier: WebMCP exposes typed tools to AI agents, OPFS SQLite + CRDTs sync offline, and WebGPU runs local AI.",
+        latency: "0.2ms",
+        js: "14.0 KB",
+        role: "WebMCP + WebGPU",
+        orbX: 1300,
+        glow: "rgba(124, 58, 237, 0.18)"
+      }
+    ];
+
+    let currentStage = 0;
+    let tourInterval = null;
+    let isTourRunning = true;
+
+    function selectPipelineStage(index) {
+      currentStage = index;
+      const stage = pipelineStages[index];
+
+      for (let i = 0; i < pipelineStages.length; i++) {
+        const node = document.getElementById(`pNode-${i}`);
+        if (!node) continue;
+        node.classList.toggle('active-node', i === index);
+      }
+
+      document.getElementById('stageStepBadge').textContent = stage.badge;
+      document.getElementById('stageDirectorCaption').textContent = stage.caption;
+      document.getElementById('heroLatency').textContent = stage.latency;
+      document.getElementById('heroJs').textContent = stage.js;
+      document.getElementById('heroRole').textContent = stage.role;
+      document.getElementById('stageAmbientGlow').style.backgroundColor = stage.glow;
+
+      const orb = document.getElementById('photonOrb');
+      if (orb) orb.setAttribute('cx', stage.orbX);
+    }
+
+    function setPipelineMode(mode) {
+      const tourPill = document.getElementById('modeTourPill');
+      const sandboxPill = document.getElementById('modeSandboxPill');
+
+      if (mode === 'tour') {
+        startCinemaTour();
+        tourPill.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-400/20 text-cyan-300 border border-cyan-400/35 transition";
+        sandboxPill.className = "px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition";
+      } else {
+        stopCinemaTour();
+        sandboxPill.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-500/25 text-violet-200 border border-violet-400/35 transition";
+        tourPill.className = "px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition";
+      }
+    }
+
+    function startCinemaTour() {
+      if (tourInterval) clearInterval(tourInterval);
+      isTourRunning = true;
+      document.getElementById('tourBtnLabel').textContent = "Auto-Tour: ON";
+      document.getElementById('tourDot').classList.remove('hidden');
+      tourInterval = setInterval(() => {
+        selectPipelineStage((currentStage + 1) % pipelineStages.length);
+      }, 4000);
+    }
+
+    function stopCinemaTour() {
+      if (tourInterval) clearInterval(tourInterval);
+      tourInterval = null;
+      isTourRunning = false;
+      document.getElementById('tourBtnLabel').textContent = "Auto-Tour: OFF";
+      document.getElementById('tourDot').classList.add('hidden');
+    }
+
+    function toggleCinemaTour() {
+      setPipelineMode(isTourRunning ? 'sandbox' : 'tour');
+    }
+
+    function triggerFullRequestPulse() {
+      let step = 0;
+      const timer = setInterval(() => {
+        selectPipelineStage(step);
+        step++;
+        if (step >= pipelineStages.length) clearInterval(timer);
+      }, 280);
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. MODULE 01 — ISLANDS ARCHITECTURE & RSC
+    // -------------------------------------------------------------------------
+    let renderArch = 'islands';
+    const islandState = {
+      header: false,
+      hero: false,
+      cart: true,
+      aiRec: true
+    };
+
+    function setRenderArch(mode) {
+      renderArch = mode;
+      const btnSpa = document.getElementById('btnArchSpa');
+      const btnIslands = document.getElementById('btnArchIslands');
+
+      if (mode === 'spa') {
+        btnSpa.className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-rose-500/25 text-rose-200 border border-rose-400/40 transition";
+        btnIslands.className = "px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition";
+      } else {
+        btnIslands.className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-violet-600/30 text-violet-200 border border-violet-400/45 shadow-[0_0_20px_rgba(124,58,237,0.28)] transition";
+        btnSpa.className = "px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition";
+      }
+      updateIslandsTelemetry();
+    }
+
+    function toggleComponentHydration(key) {
+      if (renderArch === 'spa') {
+        setRenderArch('islands');
+        return;
+      }
+      islandState[key] = !islandState[key];
+      updateIslandsTelemetry();
+    }
+
+    function updateIslandsTelemetry() {
+      const lcpEl = document.getElementById('cwvLcp');
+      const lcpRat = document.getElementById('cwvLcpRating');
+      const inpEl = document.getElementById('cwvInp');
+      const inpRat = document.getElementById('cwvInpRating');
+      const jsEl = document.getElementById('cwvJs');
+      const archTag = document.getElementById('archModeTag');
+
+      if (renderArch === 'spa') {
+        archTag.textContent = "MONOLITHIC SPA BUNDLE";
+        archTag.className = "px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-rose-500/15 text-rose-300 border border-rose-500/30";
+
+        document.getElementById('tag-header').textContent = "CLIENT BUNDLED (48 KB)";
+        document.getElementById('tag-hero').textContent = "CLIENT PARSED (142 KB)";
+        document.getElementById('tag-cart').textContent = "EAGER HYDRATED (110 KB)";
+        document.getElementById('tag-aiRec').textContent = "EAGER HYDRATED (112 KB)";
+
+        lcpEl.textContent = "2.8s";
+        lcpEl.className = "text-2xl font-mono font-bold text-rose-400 mt-0.5";
+        lcpRat.textContent = "SLOW (> 2.5s)";
+        lcpRat.className = "text-[10px] font-mono text-rose-300";
+
+        inpEl.textContent = "240ms";
+        inpEl.className = "text-2xl font-mono font-bold text-amber-400 mt-0.5";
+        inpRat.textContent = "MAIN THREAD BLOCKED";
+        inpRat.className = "text-[10px] font-mono text-amber-300";
+
+        jsEl.textContent = "412.0 KB";
+        jsEl.className = "text-2xl font-mono font-bold text-rose-300 mt-0.5";
+
+        document.getElementById('waterfallTotalTime').textContent = "Total: 980ms";
+        document.getElementById('waterfallTotalTime').className = "text-rose-400";
+        document.getElementById('wfHtmlLabel').textContent = "110ms (Empty Shell)";
+        document.getElementById('wfHtmlBar').style.width = "24%";
+        document.getElementById('wfJsLabel').textContent = "520ms";
+        document.getElementById('wfJsBar').style.width = "88%";
+        document.getElementById('wfHydrateLabel').textContent = "350ms";
+        document.getElementById('wfHydrateBar').style.width = "72%";
+        return;
+      }
+
+      // Modern RSC + Islands mode
+      archTag.textContent = "RSC STREAM + ISLANDS";
+      archTag.className = "px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/30";
+
+      const weights = { header: 3.5, hero: 4.5, cart: 6.5, aiRec: 7.5 };
+      let totalKb = 0;
+
+      // Update Header
+      const hdrBtn = document.getElementById('comp-header');
+      const hdrTag = document.getElementById('tag-header');
+      if (islandState.header) {
+        totalKb += weights.header;
+        hdrBtn.className = "w-full text-left rounded-xl p-3 border border-cyan-400/40 bg-cyan-400/[0.07] flex items-center justify-between transition-all cursor-pointer";
+        hdrTag.textContent = "HYDRATED (3.5 KB)";
+        hdrTag.className = "text-[10px] font-mono px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-200";
+      } else {
+        hdrBtn.className = "w-full text-left rounded-xl p-3 border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04] flex items-center justify-between transition-all cursor-pointer";
+        hdrTag.textContent = "STATIC HTML (0 KB)";
+        hdrTag.className = "text-[10px] font-mono px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300";
+      }
+
+      // Update Hero
+      const heroBtn = document.getElementById('comp-hero');
+      const heroTag = document.getElementById('tag-hero');
+      if (islandState.hero) {
+        totalKb += weights.hero;
+        heroBtn.className = "w-full text-left rounded-xl p-3.5 border border-cyan-400/40 bg-cyan-400/[0.07] space-y-2 transition-all cursor-pointer";
+        heroTag.textContent = "HYDRATED (4.5 KB)";
+        heroTag.className = "text-[10px] font-mono px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-200";
+      } else {
+        heroBtn.className = "w-full text-left rounded-xl p-3.5 border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04] space-y-2 transition-all cursor-pointer";
+        heroTag.textContent = "RSC STREAM (0 KB)";
+        heroTag.className = "text-[10px] font-mono px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300";
+      }
+
+      // Update Cart Island
+      const cartBtn = document.getElementById('comp-cart');
+      const cartTag = document.getElementById('tag-cart');
+      if (islandState.cart) {
+        totalKb += weights.cart;
+        cartBtn.className = "text-left rounded-xl p-3.5 border border-cyan-400/45 bg-cyan-400/[0.08] hover:bg-cyan-400/[0.13] transition-all flex flex-col justify-between cursor-pointer";
+        cartTag.textContent = "HYDRATED (6.5 KB)";
+      } else {
+        cartBtn.className = "text-left rounded-xl p-3.5 border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-all flex flex-col justify-between cursor-pointer opacity-75";
+        cartTag.textContent = "STATIC HTML (0 KB)";
+      }
+
+      // Update AI Recommendations Island
+      const aiBtn = document.getElementById('comp-aiRec');
+      const aiTag = document.getElementById('tag-aiRec');
+      if (islandState.aiRec) {
+        totalKb += weights.aiRec;
+        aiBtn.className = "text-left rounded-xl p-3.5 border border-violet-400/45 bg-violet-500/[0.09] hover:bg-violet-500/[0.15] transition-all flex flex-col justify-between cursor-pointer";
+        aiTag.textContent = "HYDRATED (7.5 KB)";
+      } else {
+        aiBtn.className = "text-left rounded-xl p-3.5 border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-all flex flex-col justify-between cursor-pointer opacity-75";
+        aiTag.textContent = "STATIC HTML (0 KB)";
+      }
+
+      const lcpVal = (0.45 + totalKb * 0.011).toFixed(1);
+      const inpVal = Math.round(10 + totalKb * 0.57);
+      const totalMs = Math.round(68 + totalKb * 3.1);
+
+      lcpEl.textContent = `${lcpVal}s`;
+      lcpEl.className = "text-2xl font-mono font-bold text-emerald-400 mt-0.5";
+      lcpRat.textContent = "FAST (< 2.5s)";
+      lcpRat.className = "text-[10px] font-mono text-emerald-300";
+
+      inpEl.textContent = `${inpVal}ms`;
+      inpEl.className = "text-2xl font-mono font-bold text-emerald-400 mt-0.5";
+      inpRat.textContent = "INSTANT (< 200ms)";
+      inpRat.className = "text-[10px] font-mono text-emerald-300";
+
+      jsEl.textContent = `${totalKb.toFixed(1)} KB`;
+      jsEl.className = "text-2xl font-mono font-bold text-cyan-300 mt-0.5";
+
+      document.getElementById('waterfallTotalTime').textContent = `Total: ${totalMs}ms`;
+      document.getElementById('waterfallTotalTime').className = "text-emerald-400";
+      document.getElementById('wfHtmlLabel').textContent = "38ms";
+      document.getElementById('wfHtmlBar').style.width = "16%";
+      document.getElementById('wfJsLabel').textContent = `${Math.round(totalKb * 3.1)}ms`;
+      document.getElementById('wfJsBar').style.width = `${Math.max(5, totalKb * 1.35)}%`;
+      document.getElementById('wfHydrateLabel').textContent = `${Math.round(totalKb * 2.1)}ms`;
+      document.getElementById('wfHydrateBar').style.width = `${Math.max(4, totalKb * 1.0)}%`;
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. MODULE 02 — EDGE COMPUTING & GLOBAL ROUTING
+    // -------------------------------------------------------------------------
+    let edgeMode = 'edge';
+    let edgeRegion = 'eu';
+    let edgeLaserProgress = 0;
+
+    const edgeConfigs = {
+      eu: {
+        label: "USER (BERLIN)",
+        pinX: 438, pinY: 114,
+        edgeTarget: { x: 415, y: 102 },
+        originTarget: { x: 205, y: 122 },
+        edgePath: "M 438 114 Q 426 105 415 102",
+        originPath: "M 438 114 Q 320 65 205 122",
+        edgeLatency: "6 ms", originLatency: "148 ms",
+        pop: "fra01-worker"
+      },
+      jp: {
+        label: "USER (TOKYO)",
+        pinX: 678, pinY: 138,
+        edgeTarget: { x: 665, y: 124 },
+        originTarget: { x: 205, y: 122 },
+        edgePath: "M 678 138 Q 672 130 665 124",
+        originPath: "M 678 138 Q 440 30 205 122",
+        edgeLatency: "5 ms", originLatency: "214 ms",
+        pop: "nrt04-worker"
+      },
+      br: {
+        label: "USER (SÃO PAULO)",
+        pinX: 268, pinY: 262,
+        edgeTarget: { x: 252, y: 245 },
+        originTarget: { x: 205, y: 122 },
+        edgePath: "M 268 262 Q 260 253 252 245",
+        originPath: "M 268 262 Q 220 190 205 122",
+        edgeLatency: "8 ms", originLatency: "162 ms",
+        pop: "gru02-worker"
+      }
+    };
+
+    function setEdgeMode(mode) {
+      edgeMode = mode;
+      const btnEdge = document.getElementById('btnRouteEdge');
+      const btnOrig = document.getElementById('btnRouteOrigin');
+
+      if (mode === 'edge') {
+        btnEdge.className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 transition";
+        btnOrig.className = "px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-400 bg-white/[0.04] hover:text-white border border-white/[0.08] transition";
+      } else {
+        btnOrig.className = "px-3.5 py-2 rounded-xl text-xs font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/40 transition";
+        btnEdge.className = "px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-400 bg-white/[0.04] hover:text-white border border-white/[0.08] transition";
+      }
+      renderEdgeMap();
+    }
+
+    function selectEdgeRegion(reg) {
+      edgeRegion = reg;
+      ['eu', 'jp', 'br'].forEach(r => {
+        const el = document.getElementById(`reg-${r}`);
+        el.className = r === reg
+          ? "btn-spring p-2.5 rounded-xl text-xs font-mono font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40"
+          : "btn-spring p-2.5 rounded-xl text-xs font-mono font-semibold bg-white/[0.04] text-slate-300 border border-white/[0.08]";
+      });
+      renderEdgeMap();
+    }
+
+    function renderEdgeMap() {
+      const cfg = edgeConfigs[edgeRegion];
+      const pin = document.getElementById('edgeUserPin');
+      const label = document.getElementById('edgeUserLabel');
+      const path = document.getElementById('edgeActivePath');
+      const latVal = document.getElementById('edgeLatencyVal');
+      const cacheEl = document.getElementById('edgeCacheStatus');
+      const popEl = document.getElementById('edgePopNode');
+      const logEl = document.getElementById('edgeTelemetryLog');
+
+      pin.setAttribute('transform', `translate(${cfg.pinX}, ${cfg.pinY})`);
+      label.textContent = cfg.label;
+
+      if (edgeMode === 'edge') {
+        path.setAttribute('d', cfg.edgePath);
+        path.setAttribute('stroke', '#00F0FF');
+        latVal.textContent = cfg.edgeLatency;
+        latVal.className = "text-2xl font-mono font-bold text-cyan-300";
+        cacheEl.textContent = "EDGE HIT (KV)";
+        cacheEl.className = "text-emerald-400";
+        popEl.textContent = cfg.pop;
+        logEl.textContent = `[${cfg.pop}] GET /api/feed → 200 OK (${cfg.edgeLatency} • KV HIT)`;
+        logEl.className = "p-3 rounded-xl bg-black/60 border border-cyan-400/20 font-mono text-[11px] text-cyan-200";
+      } else {
+        path.setAttribute('d', cfg.originPath);
+        path.setAttribute('stroke', '#F59E0B');
+        latVal.textContent = cfg.originLatency;
+        latVal.className = "text-2xl font-mono font-bold text-amber-400";
+        cacheEl.textContent = "ORIGIN ROUND-TRIP";
+        cacheEl.className = "text-amber-300";
+        popEl.textContent = "us-east-1 (Origin)";
+        logEl.textContent = `[us-east-1] GET /api/feed → 200 OK (${cfg.originLatency} • TRANS-OCEANIC)`;
+        logEl.className = "p-3 rounded-xl bg-black/60 border border-amber-400/25 font-mono text-[11px] text-amber-200";
+      }
+    }
+
+    function animateEdgeLaser() {
+      edgeLaserProgress = (edgeLaserProgress + (edgeMode === 'edge' ? 0.045 : 0.016)) % 1;
+      const cfg = edgeConfigs[edgeRegion];
+      const dst = edgeMode === 'edge' ? cfg.edgeTarget : cfg.originTarget;
+      const t = edgeLaserProgress < 0.5 ? edgeLaserProgress * 2 : (1 - edgeLaserProgress) * 2;
+      const lx = cfg.pinX + (dst.x - cfg.pinX) * t;
+      const ly = cfg.pinY + (dst.y - cfg.pinY) * t - Math.sin(t * Math.PI) * 22;
+
+      const dot = document.getElementById('edgeLaserDot');
+      if (dot) {
+        dot.setAttribute('cx', lx);
+        dot.setAttribute('cy', ly);
+        dot.setAttribute('fill', edgeMode === 'edge' ? '#00F0FF' : '#F59E0B');
+      }
+      requestAnimationFrame(animateEdgeLaser);
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. MODULE 03 — NATIVE BROWSER SUPERPOWERS
+    // -------------------------------------------------------------------------
+    function resizeCqContainer(px) {
+      const box = document.getElementById('cqBox');
+      box.style.width = `${px}px`;
+      box.style.maxWidth = '100%';
+      document.getElementById('cqWidthVal').textContent = `${px}px`;
+    }
+
+    const vtItems = [
+      {
+        tag: "ZERO-RUNTIME CSS",
+        metric: "120 FPS",
+        title: "Subgrid & :has() Selectors",
+        desc: "Parent-aware styling and aligned nested card tracks without resize-observer JavaScript.",
+        grad: "from-violet-500/20 via-fuchsia-500/10 to-cyan-500/15"
+      },
+      {
+        tag: "TOP-LAYER NATIVE",
+        metric: "0 KB LIB",
+        title: "Popover API & Light Dismiss",
+        desc: "Accessible menus, tooltips, and dialogs managed natively by the browser top layer.",
+        grad: "from-cyan-500/20 via-sky-500/10 to-emerald-500/15"
+      },
+      {
+        tag: "GPU COMPOSITOR",
+        metric: "OFF-MAIN",
+        title: "Scroll-Driven Animations",
+        desc: "Parallax & progress timelines bound directly to scroll progress on the GPU compositor.",
+        grad: "from-emerald-500/20 via-teal-500/10 to-amber-500/15"
+      }
+    ];
+
+    function switchViewTransition(idx) {
+      const item = vtItems[idx];
+      const spot = document.getElementById('vtSpotlight');
+      const apply = () => {
+        document.getElementById('vtSpotTag').textContent = item.tag;
+        document.getElementById('vtSpotMetric').textContent = item.metric;
+        document.getElementById('vtSpotTitle').textContent = item.title;
+        document.getElementById('vtSpotDesc').textContent = item.desc;
+        spot.className = `rounded-xl p-4 bg-gradient-to-br ${item.grad} border border-violet-400/35 transition-all duration-300`;
+        [0, 1, 2].forEach(i => {
+          const btn = document.getElementById(`vtBtn-${i}`);
+          btn.className = i === idx
+            ? "p-2.5 rounded-xl text-left bg-violet-500/20 border border-violet-400/50 transition"
+            : "p-2.5 rounded-xl text-left bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition";
+        });
+      };
+      if (document.startViewTransition) document.startViewTransition(apply);
+      else apply();
+    }
+
+    let computeEngine = 'wasm';
+    function initWasmCanvas() {
+      const canvas = document.getElementById('wasmCanvas');
+      const wrap = document.getElementById('wasmCanvasWrap');
+      if (!canvas || !wrap) return;
+
+      const resize = () => {
+        const rect = wrap.getBoundingClientRect();
+        canvas.width = rect.width * (window.devicePixelRatio || 1);
+        canvas.height = rect.height * (window.devicePixelRatio || 1);
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      const particles = Array.from({ length: 190 }, (_, i) => ({
+        angle: (i / 190) * Math.PI * 2,
+        radius: 16 + (i % 46) * 1.4,
+        speed: 0.016 + (i % 7) * 0.004,
+        hue: i % 2 === 0 ? 185 : 265
+      }));
+
+      let frame = 0;
+      function loop() {
+        frame++;
+        if (computeEngine === 'js' && frame % 3 !== 0) {
+          requestAnimationFrame(loop);
+          return;
+        }
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.fillStyle = 'rgba(4, 6, 11, 0.28)';
+        ctx.fillRect(0, 0, w, h);
+
+        const mult = computeEngine === 'wasm' ? 1.45 : 0.45;
+        for (let p of particles) {
+          p.angle += p.speed * mult;
+          const x = w / 2 + Math.cos(p.angle) * p.radius * (w / 320);
+          const y = h / 2 + Math.sin(p.angle * 1.3) * p.radius * (h / 180);
+          ctx.fillStyle = computeEngine === 'wasm' ? `hsla(${p.hue}, 95%, 65%, 0.85)` : 'rgba(245, 158, 11, 0.8)';
+          ctx.beginPath();
+          ctx.arc(x, y, computeEngine === 'wasm' ? 2.1 : 2.6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    }
+
+    function setComputeEngine(engine) {
+      computeEngine = engine;
+      const btnWasm = document.getElementById('btnEngineWasm');
+      const btnJs = document.getElementById('btnEngineJs');
+      const fpsBadge = document.getElementById('wasmFpsBadge');
+      const frameTime = document.getElementById('wasmFrameTime');
+
+      if (engine === 'wasm') {
+        btnWasm.className = "btn-spring py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40";
+        btnJs.className = "btn-spring py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-white/[0.04] text-slate-400 border border-white/[0.08]";
+        fpsBadge.textContent = "60 FPS • WASM SIMD";
+        fpsBadge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-400/15 text-emerald-300";
+        frameTime.textContent = "1.9ms / frame";
+        frameTime.className = "px-2 py-0.5 rounded bg-black/75 text-emerald-300";
+      } else {
+        btnJs.className = "btn-spring py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/40";
+        btnWasm.className = "btn-spring py-2 px-3 rounded-xl text-xs font-mono font-semibold bg-white/[0.04] text-slate-400 border border-white/[0.08]";
+        fpsBadge.textContent = "20 FPS • GC STALLS";
+        fpsBadge.className = "text-[10px] font-mono px-2 py-0.5 rounded bg-amber-400/15 text-amber-300";
+        frameTime.textContent = "18.8ms / frame";
+        frameTime.className = "px-2 py-0.5 rounded bg-black/75 text-amber-300";
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. MODULE 04 — OFFLINE-FIRST PWA & ENCRYPTED WEB PUSH
+    // -------------------------------------------------------------------------
+    let isOnline = true;
+    let isTabClosed = false;
+    let pushToastTimeout = null;
+
+    function toggleNetworkState() {
+      isOnline = !isOnline;
+      const btn = document.getElementById('btnNetToggle');
+      const dot = document.getElementById('netStatusDot');
+      const txt = document.getElementById('netStatusText');
+      const banner = document.getElementById('swCacheBanner');
+      const desc = document.getElementById('swCacheDesc');
+
+      if (isOnline) {
+        btn.className = "btn-spring px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-400/35 flex items-center gap-2";
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        txt.textContent = "Online Mode";
+        banner.className = "p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-400/25 flex items-center justify-between gap-3";
+        desc.textContent = "Serving instant shell from CacheStorage while revalidating fresh data in background.";
+      } else {
+        btn.className = "btn-spring px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-rose-500/20 text-rose-200 border border-rose-400/40 flex items-center gap-2";
+        dot.className = "w-2 h-2 rounded-full bg-rose-400";
+        txt.textContent = "Offline Airplane Mode";
+        banner.className = "p-3.5 rounded-xl bg-amber-500/15 border border-amber-400/35 flex items-center justify-between gap-3";
+        desc.textContent = "Airplane Mode intercepted! sw.js serves cached shell & queues mutations via Background Sync API.";
+      }
+    }
+
+    function toggleTabState() {
+      isTabClosed = !isTabClosed;
+      const btn = document.getElementById('btnTabToggle');
+      const icon = document.getElementById('tabStateIcon');
+      const txt = document.getElementById('tabStateText');
+      const badge = document.getElementById('swStateBadge');
+
+      if (!isTabClosed) {
+        btn.className = "btn-spring px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-white/[0.05] text-slate-200 border border-white/[0.1] flex items-center gap-2";
+        icon.textContent = "🟢";
+        txt.textContent = "Browser Tab: OPEN";
+        badge.textContent = "sw.js // ACTIVE";
+      } else {
+        btn.className = "btn-spring px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-violet-500/20 text-violet-200 border border-violet-400/40 flex items-center gap-2";
+        icon.textContent = "🌙";
+        txt.textContent = "Browser Tab: CLOSED";
+        badge.textContent = "sw.js // BACKGROUND WAKE";
+      }
+    }
+
+    function triggerSimulatedWebPush() {
+      const title = document.getElementById('pushInputTitle').value.trim() || "Edge Release Live";
+      const body = document.getElementById('pushInputBody').value.trim() || "Decrypted via sw.js push event.";
+
+      ['pushStep1', 'pushStep2', 'pushStep3'].forEach((id, idx) => {
+        const el = document.getElementById(id);
+        setTimeout(() => {
+          el.classList.add('border-amber-400/65', 'bg-amber-400/10');
+          setTimeout(() => el.classList.remove('border-amber-400/65', 'bg-amber-400/10'), 850);
+        }, idx * 220);
+      });
+
+      setTimeout(() => {
+        const banner = document.getElementById('osPushBanner');
+        document.getElementById('osPushTitle').textContent = title;
+        document.getElementById('osPushBody').textContent = isTabClosed ? `[Tab Closed] ${body}` : body;
+        banner.classList.remove('hidden');
+
+        if (pushToastTimeout) clearTimeout(pushToastTimeout);
+        pushToastTimeout = setTimeout(dismissOsPush, 5500);
+      }, 620);
+    }
+
+    function dismissOsPush() {
+      document.getElementById('osPushBanner').classList.add('hidden');
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. MODULE 05 — END-TO-END TYPE SAFETY (price: number vs price: string)
+    // -------------------------------------------------------------------------
+    let priceFieldType = 'number';
+
+    function setPriceFieldType(type) {
+      priceFieldType = type;
+      const btnNum = document.getElementById('btnPriceNum');
+      const btnStr = document.getElementById('btnPriceStr');
+
+      if (type === 'number') {
+        btnNum.className = "px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 transition";
+        btnStr.className = "px-3.5 py-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-rose-200 transition";
+      } else {
+        btnStr.className = "px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-rose-500/25 text-rose-200 border border-rose-400/45 transition";
+        btnNum.className = "px-3.5 py-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition";
+      }
+      renderTypeSafePipeline();
+    }
+
+    function renderTypeSafePipeline() {
+      const isNum = priceFieldType === 'number';
+      const schemaCol = isNum ? `  price: numeric('price').$type<number>(),` : `  price: text('price').$type<string>(),`;
+
+      document.getElementById('codeSchema').innerHTML =
+`export const flights = pgTable('flights', {
+  id: uuid('id').primaryKey(),
+  route: text('route').notNull(),
+<span class="${isNum ? 'text-emerald-300 font-bold' : 'text-rose-300 font-bold'}">${schemaCol}</span>
+});`;
+
+      document.getElementById('rpcTypeBadge').textContent = isNum ? "Inferred: number" : "Inferred: string";
+      document.getElementById('rpcTypeBadge').className = isNum ? "text-[10px] font-mono text-cyan-300" : "text-[10px] font-mono text-amber-300";
+
+      document.getElementById('codeRpc').innerHTML =
+`export const getFlight = publicProcedure
+  .input(z.object({ id: z.string() }))
+  .query(async ({ input }) => {
+    // Return type inferred automatically:
+    // { route: string; price: <span class="${isNum ? 'text-cyan-300 font-bold' : 'text-rose-300 font-bold'}">${priceFieldType}</span> }
+    return db.query.flights.findFirst();
+  });`;
+
+      const uiBadge = document.getElementById('uiTypeBadge');
+      const card3 = document.getElementById('typeCard3');
+
+      if (isNum) {
+        uiBadge.textContent = "0 Type Errors ✓";
+        uiBadge.className = "text-[10px] font-mono text-emerald-400";
+        card3.className = "glass-card-inner rounded-2xl p-4 border-violet-400/30 transition-all";
+        document.getElementById('codeUi').innerHTML =
+`export function PriceTag({ id }: Props) {
+  const { data } = api.getFlight.useQuery({ id });
+  // data.price is inferred as number
+  const total = data.price.toFixed(2);
+  return <span>€{total}</span>;
+}`;
+      } else {
+        uiBadge.textContent = "TS2339: Compile Error ✕";
+        uiBadge.className = "text-[10px] font-mono text-rose-400 font-bold";
+        card3.className = "glass-card-inner rounded-2xl p-4 border-rose-500/55 shadow-[0_0_25px_rgba(244,63,94,0.2)] transition-all";
+        document.getElementById('codeUi').innerHTML =
+`export function PriceTag({ id }: Props) {
+  const { data } = api.getFlight.useQuery({ id });
+  // Error: Property 'toFixed' does not exist on 'string'
+  const total = <span class="ts-squiggly">data.price.toFixed(2)</span>;
+  return <span>€{total}</span>;
+}`;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. MODULE 06 — REAL-TIME TRANSPORT & ZERO-TRUST CRYPTOGRAPHY
+    // -------------------------------------------------------------------------
+    let transportProto = 'webrtc';
+    let hasPacketLoss = false;
+    let e2eeStreamsEnabled = true;
+
+    const transportSpecs = {
+      ws: {
+        mental: "<strong>WebSockets (TCP)</strong> uses a single ordered byte stream. Under 15% packet loss, TCP pauses all 4 lanes waiting for retransmission — causing <strong>Head-of-Line (HOL) Blocking</strong>.",
+        badge: "SINGLE ORDERED TCP STREAM",
+        hs1: "TCP 3-Way Handshake", hs2: "TLS 1.3 Encryption", hs3: "HTTP Upgrade → WS",
+        latNormal: "38 ms", latLoss: "365 ms",
+        holNormal: "TCP RISK", holLoss: "BLOCKED!",
+        wire: "TCP (Single Stream)"
+      },
+      webrtc: {
+        mental: "<strong>WebRTC</strong> punches through NAT routers via <strong>ICE/STUN</strong>, exchanges keys with <strong>DTLS</strong>, and streams media over <strong>UDP (SRTP)</strong>—so dropped video frames never block voice audio or data channels.",
+        badge: "4 INDEPENDENT UDP CHANNELS",
+        hs1: "ICE / STUN NAT Traversal", hs2: "DTLS Key Exchange", hs3: "SRTP Media + SCTP Data",
+        latNormal: "18 ms", latLoss: "21 ms",
+        holNormal: "NONE", holLoss: "BYPASSED ✓",
+        wire: "UDP (SRTP + DTLS)"
+      },
+      wt: {
+        mental: "<strong>WebTransport (HTTP/3 QUIC)</strong> delivers UDP-style datagrams and independent multiplexed streams over port 443 without SDP signaling overhead or TCP Head-of-Line blocking.",
+        badge: "HTTP/3 QUIC MULTIPLEXED",
+        hs1: "QUIC 1-RTT Handshake", hs2: "Built-in TLS 1.3", hs3: "Datagrams + Streams",
+        latNormal: "14 ms", latLoss: "16 ms",
+        holNormal: "NONE", holLoss: "ISOLATED ✓",
+        wire: "UDP (HTTP/3 QUIC)"
+      }
+    };
+
+    function setTransportProtocol(proto) {
+      transportProto = proto;
+      ['ws', 'webrtc', 'wt'].forEach(p => {
+        const btn = document.getElementById(`btnProto${p.charAt(0).toUpperCase() + p.slice(1)}`);
+        if (!btn) return;
+        btn.className = p === proto
+          ? "px-3 py-2 rounded-xl text-xs font-mono font-semibold bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 transition"
+          : "px-3 py-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition";
+      });
+      updateTransportUi();
+    }
+
+    function togglePacketLoss() {
+      hasPacketLoss = !hasPacketLoss;
+      const btn = document.getElementById('btnPacketLoss');
+      const dot = document.getElementById('lossDot');
+      const lbl = document.getElementById('lossBtnLabel');
+
+      if (hasPacketLoss) {
+        btn.className = "btn-spring px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold bg-rose-500/25 text-rose-200 border border-rose-400/45 flex items-center gap-2";
+        dot.className = "w-2 h-2 rounded-full bg-rose-400 animate-ping";
+        lbl.textContent = "15% Packet Loss: ACTIVE";
+      } else {
+        btn.className = "btn-spring px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold bg-white/[0.06] hover:bg-rose-500/20 text-slate-200 border border-white/[0.12] flex items-center gap-2";
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        lbl.textContent = "15% Packet Loss: OFF";
+      }
+      updateTransportUi();
+    }
+
+    function toggleE2eeStreams() {
+      e2eeStreamsEnabled = !e2eeStreamsEnabled;
+      const btn = document.getElementById('btnE2eeToggle');
+      const st = document.getElementById('rtE2eeState');
+      btn.textContent = e2eeStreamsEnabled ? "🔒 E2EE Insertable Streams: ON" : "🔓 E2EE Insertable Streams: OFF";
+      st.textContent = e2eeStreamsEnabled ? "E2EE Frame Cipher" : "Transport TLS Only";
+    }
+
+    function updateTransportUi() {
+      const spec = transportSpecs[transportProto];
+      document.getElementById('transportMentalModel').innerHTML = spec.mental;
+      document.getElementById('highwayBadge').textContent = spec.badge;
+      document.getElementById('hsStep1Title').textContent = spec.hs1;
+      document.getElementById('hsStep2Title').textContent = spec.hs2;
+      document.getElementById('hsStep3Title').textContent = spec.hs3;
+      document.getElementById('rtWireProto').textContent = spec.wire;
+
+      const latEl = document.getElementById('rtLatencyVal');
+      const holEl = document.getElementById('rtHolVal');
+
+      if (hasPacketLoss) {
+        latEl.textContent = spec.latLoss;
+        holEl.textContent = spec.holLoss;
+        const blocked = transportProto === 'ws';
+        latEl.className = `text-xl font-mono font-bold ${blocked ? 'text-rose-400' : 'text-emerald-400'} mt-0.5`;
+        holEl.className = `text-xl font-mono font-bold ${blocked ? 'text-rose-400' : 'text-emerald-400'} mt-0.5`;
+      } else {
+        latEl.textContent = spec.latNormal;
+        latEl.className = "text-xl font-mono font-bold text-cyan-300 mt-0.5";
+        holEl.textContent = spec.holNormal;
+        holEl.className = `text-xl font-mono font-bold ${transportProto === 'ws' ? 'text-amber-300' : 'text-emerald-400'} mt-0.5`;
+      }
+    }
+
+    function initTransportHighway() {
+      const canvas = document.getElementById('transportCanvas');
+      const wrap = document.getElementById('transportCanvasWrap');
+      if (!canvas || !wrap) return;
+
+      const resize = () => {
+        const rect = wrap.getBoundingClientRect();
+        canvas.width = rect.width * (window.devicePixelRatio || 1);
+        canvas.height = rect.height * (window.devicePixelRatio || 1);
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      const colors = ['#00F0FF', '#7C3AED', '#10B981', '#F59E0B'];
+      const packets = [];
+      for (let lane = 0; lane < 4; lane++) {
+        for (let i = 0; i < 6; i++) {
+          packets.push({ lane, x: i / 6, speed: 0.0048 + lane * 0.0004, color: colors[lane], dropped: false });
+        }
+      }
+
+      let tick = 0;
+      function draw() {
+        tick++;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.fillStyle = '#04060B';
+        ctx.fillRect(0, 0, w, h);
+
+        const laneH = h / 4;
+        for (let l = 0; l < 4; l++) {
+          const yc = laneH * l + laneH / 2;
+          ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+          ctx.beginPath();
+          ctx.moveTo(0, laneH * l);
+          ctx.lineTo(w, laneH * l);
+          ctx.stroke();
+
+          ctx.setLineDash([7, 7]);
+          ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+          ctx.beginPath();
+          ctx.moveTo(16, yc);
+          ctx.lineTo(w - 16, yc);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        const tcpBlocked = transportProto === 'ws' && hasPacketLoss && (Math.floor(tick / 55) % 2 === 0);
+        if (tcpBlocked) {
+          const wallX = w * 0.56;
+          ctx.fillStyle = 'rgba(244, 63, 94, 0.16)';
+          ctx.fillRect(wallX - 16, 0, 32, h);
+          ctx.strokeStyle = '#F43F5E';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(wallX, 0);
+          ctx.lineTo(wallX, h);
+          ctx.stroke();
+
+          ctx.fillStyle = '#FDA4AF';
+          ctx.font = `bold ${Math.max(11, Math.round(w * 0.017))}px JetBrains Mono, monospace`;
+          ctx.fillText('TCP HEAD-OF-LINE BLOCKING (ALL LANES FROZEN)', Math.max(10, wallX - 190), h / 2 - 6);
+        }
+
+        for (let p of packets) {
+          const yc = laneH * p.lane + laneH / 2;
+          if (!(tcpBlocked && p.x > 0.48 && p.x < 0.56)) {
+            p.x += p.speed;
+            if (p.x > 1.04) {
+              p.x = -0.04;
+              p.dropped = hasPacketLoss && p.lane === 1 && Math.random() < 0.35;
+            }
+          }
+          const px = p.x * w;
+          if (p.dropped && p.x > 0.45 && p.x < 0.62) {
+            ctx.strokeStyle = '#F43F5E';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(px - 6, yc - 6);
+            ctx.lineTo(px + 6, yc + 6);
+            ctx.moveTo(px + 6, yc - 6);
+            ctx.lineTo(px - 6, yc + 6);
+            ctx.stroke();
+            continue;
+          }
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.roundRect(px - 10, yc - 6, 20, 12, 5);
+          ctx.fill();
+          if (e2eeStreamsEnabled) {
+            ctx.fillStyle = '#06070B';
+            ctx.beginPath();
+            ctx.arc(px, yc, 2.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    }
+
+    // Lab 06B: FIDO2 Passkey Phishing Simulator
+    let fidoDomainMode = 'legit';
+    function setFidoDomain(mode) {
+      fidoDomainMode = mode;
+      const btnLegit = document.getElementById('btnFidoLegit');
+      const btnPhish = document.getElementById('btnFidoPhish');
+      const originOut = document.getElementById('fidoOriginReadout');
+
+      if (mode === 'legit') {
+        btnLegit.className = "px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 transition";
+        btnPhish.className = "px-3.5 py-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-rose-200 transition";
+        originOut.textContent = "https://app.modernstack.dev";
+        originOut.className = "text-emerald-300 font-bold";
+      } else {
+        btnPhish.className = "px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-rose-500/25 text-rose-200 border border-rose-400/45 transition";
+        btnLegit.className = "px-3.5 py-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition";
+        originOut.textContent = "https://app-modernstack.dev";
+        originOut.className = "text-rose-400 font-bold";
+      }
+
+      const bytes = new Uint8Array(10);
+      if (window.crypto?.getRandomValues) window.crypto.getRandomValues(bytes);
+      const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+      document.getElementById('fidoChallengeVal').textContent = `${hex.slice(0, 12)}...${hex.slice(-6)}`;
+
+      const badge = document.getElementById('fidoVerdictBadge');
+      const title = document.getElementById('fidoVerdictTitle');
+      const desc = document.getElementById('fidoVerdictDesc');
+
+      if (mode === 'legit') {
+        badge.textContent = "VERIFIED ✓";
+        badge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/35";
+        title.textContent = "rpIdHash & ES256 Signature Match";
+        desc.innerHTML = 'Public key verifies <code class="text-cyan-300">SHA256("modernstack.dev")</code> and challenge signature. Authenticated!';
+      } else {
+        badge.textContent = "PHISHING BLOCKED ✕";
+        badge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-500/25 text-rose-200 border border-rose-400/45";
+        title.textContent = "Origin Mismatch — Spoofed Domain Rejected";
+        desc.innerHTML = 'Browser refuses to match <code class="text-rose-300">app-modernstack.dev</code> against <code class="text-cyan-300">modernstack.dev</code>. Attack neutralized!';
+      }
+    }
+
+    // Lab 06C: Live SubtleCrypto Key Signing Lab
+    let currentSignAlgo = 'ES256';
+    let activeCryptoKey = null;
+    let lastSignatureBytes = null;
+    let lastSignedMessage = '';
+
+    function bufToBase64Url(buf) {
+      const bytes = new Uint8Array(buf);
+      let bin = '';
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    async function selectSigningAlgo(algo) {
+      currentSignAlgo = algo;
+      ['ES256', 'HS256', 'DPoP'].forEach(a => {
+        const btn = document.getElementById(`algoBtn-${a}`);
+        if (!btn) return;
+        btn.className = a === algo
+          ? "px-3 py-1.5 rounded-xl text-xs font-mono font-semibold bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 transition"
+          : "px-3 py-1.5 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition";
+      });
+      await generateRealCryptoKey();
+    }
+
+    async function generateRealCryptoKey() {
+      const pubOut = document.getElementById('cryptoPubKeyOut');
+      const keyLabel = document.getElementById('keyTypeLabel');
+      try {
+        if (currentSignAlgo === 'ES256' || currentSignAlgo === 'DPoP') {
+          activeCryptoKey = await window.crypto.subtle.generateKey(
+            { name: 'ECDSA', namedCurve: 'P-256' },
+            true,
+            ['sign', 'verify']
+          );
+          const jwk = await window.crypto.subtle.exportKey('jwk', activeCryptoKey.publicKey);
+          keyLabel.textContent = currentSignAlgo === 'DPoP'
+            ? "EPHEMERAL CLIENT DPoP JWK THUMBPRINT"
+            : "PUBLIC KEY (ECDSA P-256 JWK)";
+          pubOut.textContent = `{"kty":"EC","crv":"P-256","x":"${jwk.x.slice(0, 22)}...","y":"${jwk.y.slice(0, 22)}..."}`;
+        } else {
+          activeCryptoKey = await window.crypto.subtle.generateKey(
+            { name: 'HMAC', hash: 'SHA-256' },
+            true,
+            ['sign', 'verify']
+          );
+          const raw = await window.crypto.subtle.exportKey('raw', activeCryptoKey);
+          keyLabel.textContent = "SHARED SYMMETRIC SECRET (HMAC-SHA256)";
+          pubOut.textContent = `whsec_${bufToBase64Url(raw).slice(0, 38)}`;
+        }
+        await signCurrentPayload();
+      } catch (e) {
+        pubOut.textContent = "SubtleCrypto ready.";
+      }
+    }
+
+    async function signCurrentPayload() {
+      if (!activeCryptoKey) return;
+      const t0 = performance.now();
+      const rawText = document.getElementById('signPayloadInput').value;
+      const msg = currentSignAlgo === 'DPoP' ? `POST|https://api.modernstack.dev/deploy|${rawText}` : rawText;
+      lastSignedMessage = msg;
+      const encoded = new TextEncoder().encode(msg);
+
+      if (currentSignAlgo === 'HS256') {
+        lastSignatureBytes = await window.crypto.subtle.sign('HMAC', activeCryptoKey, encoded);
+      } else {
+        lastSignatureBytes = await window.crypto.subtle.sign(
+          { name: 'ECDSA', hash: { name: 'SHA-256' } },
+          activeCryptoKey.privateKey,
+          encoded
+        );
+      }
+
+      const elapsed = Math.max(0.1, performance.now() - t0).toFixed(1);
+      const b64 = bufToBase64Url(lastSignatureBytes);
+      document.getElementById('sigTimeLabel').textContent = `${elapsed}ms`;
+      document.getElementById('cryptoSigOut').textContent = currentSignAlgo === 'DPoP'
+        ? `DPoP: eyJhbGciOiJFUzI1NiIsInR5cCI6ImRwb3Arand0In0.${b64.slice(0, 56)}...`
+        : b64;
+      setSignatureStatus(true);
+    }
+
+    async function tamperOrReplayTest() {
+      if (!activeCryptoKey || !lastSignatureBytes) return;
+      const tampered = lastSignedMessage.replace('"viewer"', '"admin"') + '_escalated';
+      const encoded = new TextEncoder().encode(tampered);
+
+      let valid = false;
+      try {
+        if (currentSignAlgo === 'HS256') {
+          valid = await window.crypto.subtle.verify('HMAC', activeCryptoKey, lastSignatureBytes, encoded);
+        } else {
+          valid = await window.crypto.subtle.verify(
+            { name: 'ECDSA', hash: { name: 'SHA-256' } },
+            activeCryptoKey.publicKey,
+            lastSignatureBytes,
+            encoded
+          );
+        }
+      } catch (e) {
+        valid = false;
+      }
+      setSignatureStatus(valid);
+    }
+
+    function setSignatureStatus(verified) {
+      const badge = document.getElementById('sigVerifyBadge');
+      const banner = document.getElementById('sigStatusBanner');
+      if (verified) {
+        badge.textContent = "SIGNATURE VERIFIED ✓";
+        badge.className = "px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40";
+        banner.className = "p-3 rounded-xl bg-emerald-500/10 border border-emerald-400/25 text-xs text-emerald-200 leading-relaxed";
+        banner.textContent = "✓ Signature verified mathematically via window.crypto.subtle.verify().";
+      } else {
+        badge.textContent = "SIGNATURE REJECTED ✕";
+        badge.className = "px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-500/25 text-rose-200 border border-rose-400/45";
+        banner.className = "p-3 rounded-xl bg-rose-500/15 border border-rose-400/35 text-xs text-rose-200 leading-relaxed";
+        banner.textContent = '✕ Tampering Detected: Payload escalated ("role": "admin") after signing — SubtleCrypto verification failed!';
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. MODULE 07 — THE LATE-2026 BROWSER FRONTIER
+    // -------------------------------------------------------------------------
+    // Lab 07A: WebMCP (navigator.modelContext) Agent Inspector
+    let webMcpMode = 'webmcp';
+
+    const mcpCodeNative =
+`navigator.modelContext.registerTool({
+  name: "searchFlights",
+  description: "Filter flights by max EUR price",
+  inputSchema: {
+    type: "object",
+    properties: { maxPriceEur: { type: "number" } },
+    required: ["maxPriceEur"]
+  },
+  async execute({ maxPriceEur }) {
+    return await flightStore.query({ maxPriceEur });
+  }
+});`;
+
+    const mcpCodeScrape =
+`// Legacy Agent DOM Scraping (Fragile & Token-Heavy)
+const screenshot = await page.captureFullScreenshot();
+// Sends 14,200 vision tokens to VLM to guess coordinates
+await page.mouse.click(412, 289);
+await page.keyboard.type("400");
+// Fails if CSS class '.price-input-v2' changes!
+const rows = await page.$$eval("div.x9a > span", ...);`;
+
+    function setWebMcpMode(mode) {
+      webMcpMode = mode;
+      const btnNative = document.getElementById('btnMcpNative');
+      const btnScrape = document.getElementById('btnMcpScrape');
+
+      if (mode === 'webmcp') {
+        btnNative.className = "px-3 py-1.5 rounded-xl text-xs font-mono font-semibold bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 transition";
+        btnScrape.className = "px-3 py-1.5 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition";
+        document.getElementById('mcpSourceTitle').textContent = "navigator.modelContext.registerTool()";
+        document.getElementById('mcpTokenBadge').textContent = "-67% Agent Tokens";
+        document.getElementById('mcpTokenBadge').className = "text-[10px] font-mono px-2.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300";
+        document.getElementById('mcpSchemaCode').textContent = mcpCodeNative;
+      } else {
+        btnScrape.className = "px-3 py-1.5 rounded-xl text-xs font-mono font-semibold bg-rose-500/25 text-rose-200 border border-rose-400/45 transition";
+        btnNative.className = "px-3 py-1.5 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition";
+        document.getElementById('mcpSourceTitle').textContent = "Legacy DOM / Screenshot Scraping";
+        document.getElementById('mcpTokenBadge').textContent = "+14,200 Vision Tokens";
+        document.getElementById('mcpTokenBadge').className = "text-[10px] font-mono px-2.5 py-0.5 rounded bg-rose-500/20 text-rose-300";
+        document.getElementById('mcpSchemaCode').textContent = mcpCodeScrape;
+      }
+      runWebMcpAgentTask();
+    }
+
+    function runWebMcpAgentTask() {
+      const log = document.getElementById('mcpExecLog');
+      const timeEl = document.getElementById('mcpExecTime');
+      const spEl = document.getElementById('mcpStatSpeed');
+      const relEl = document.getElementById('mcpStatRel');
+      const authEl = document.getElementById('mcpStatAuth');
+
+      if (webMcpMode === 'webmcp') {
+        timeEl.textContent = "42ms";
+        timeEl.className = "text-xs font-mono font-bold text-emerald-400";
+        spEl.textContent = "42 ms";
+        spEl.className = "text-sm font-bold text-cyan-300";
+        relEl.textContent = "99.9%";
+        relEl.className = "text-sm font-bold text-emerald-400";
+        authEl.textContent = "Native Session";
+
+        log.innerHTML = `<div class="text-cyan-300">[agent] Reading navigator.modelContext tool manifest...</div>`;
+        setTimeout(() => {
+          log.innerHTML += `<div class="text-slate-200">[invoke] searchFlights({"maxPriceEur": 400})</div>`;
+        }, 200);
+        setTimeout(() => {
+          log.innerHTML += `<div class="text-emerald-300">[result] Returned typed JSON: [{"route":"BER→NRT","eur":389},{"route":"BER→LIS","eur":142}] ✓</div>`;
+        }, 420);
+      } else {
+        timeEl.textContent = "1,840ms";
+        timeEl.className = "text-xs font-mono font-bold text-rose-400";
+        spEl.textContent = "1,840 ms";
+        spEl.className = "text-sm font-bold text-rose-400";
+        relEl.textContent = "64.0%";
+        relEl.className = "text-sm font-bold text-amber-400";
+        authEl.textContent = "Fragile Cookies";
+
+        log.innerHTML = `<div class="text-amber-300">[scraper] Capturing 1440p viewport screenshot & OCR tree...</div>`;
+        setTimeout(() => {
+          log.innerHTML += `<div class="text-rose-300">[warn] Selector 'div.x9a > span' missed 1 dynamic virtualized row</div>`;
+        }, 250);
+        setTimeout(() => {
+          log.innerHTML += `<div class="text-slate-300">[done] Parsed partial text in 1,840ms (high token cost).</div>`;
+        }, 500);
+      }
+    }
+
+    // Lab 07B: Local-First Sync Engine & OPFS SQLite Visualizer
+    const crdtSharedState = {
+      clock: 4,
+      taskDone: true,
+      counter: 12
+    };
+
+    const deviceStates = {
+      mac: { offline: false, clock: 4, taskDone: true, counter: 12 },
+      iphone: { offline: false, clock: 4, taskDone: true, counter: 12 }
+    };
+
+    function renderLocalFirstDevices() {
+      ['mac', 'iphone'].forEach(dev => {
+        const st = deviceStates[dev];
+        const listEl = document.getElementById(`${dev}TaskList`);
+        listEl.innerHTML = `
+          <div class="p-3 rounded-xl bg-black/55 border border-white/[0.06] flex items-center justify-between text-xs">
+            <span class="${st.taskDone ? 'line-through text-slate-400' : 'text-white font-medium'}">Ship WebMCP & OPFS SQLite</span>
+            <span class="font-mono text-[10px] px-2 py-0.5 rounded ${st.taskDone ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}">${st.taskDone ? 'DONE' : 'OPEN'}</span>
+          </div>
+          <div class="p-3 rounded-xl bg-black/55 border border-white/[0.06] flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-400">CRDT G-Counter</span>
+            <span class="text-cyan-300 font-bold">${st.counter} (v${st.clock})</span>
+          </div>
+        `;
+      });
+
+      const anyOffline = deviceStates.mac.offline || deviceStates.iphone.offline;
+      const badge = document.getElementById('crdtBridgeBadge');
+      if (anyOffline) {
+        badge.textContent = "⏳ OFFLINE QUEUE: DELTA BUFFERED IN OPFS";
+        badge.className = "px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-amber-500/15 text-amber-300 border border-amber-400/35 self-start";
+      } else {
+        badge.textContent = `⇄ CRDT DELTA BRIDGE: CONVERGED (v${crdtSharedState.clock})`;
+        badge.className = "px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-400/35 self-start";
+      }
+      document.getElementById('crdtClockVal').textContent = `v${crdtSharedState.clock}`;
+    }
+
+    function toggleDeviceOffline(dev) {
+      deviceStates[dev].offline = !deviceStates[dev].offline;
+      const btn = document.getElementById(dev === 'mac' ? 'btnOfflineMac' : 'btnOfflineIphone');
+
+      if (deviceStates[dev].offline) {
+        btn.textContent = "Airplane Mode";
+        btn.className = "btn-spring px-3 py-1.5 rounded-xl text-xs font-mono font-semibold bg-rose-500/20 text-rose-200 border border-rose-400/40";
+      } else {
+        btn.textContent = "Online";
+        btn.className = "btn-spring px-3 py-1.5 rounded-xl text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-400/35";
+        // Merge CRDT state immediately upon reconnect
+        syncCrdtReplicas();
+      }
+      renderLocalFirstDevices();
+    }
+
+    function mutateLocalDevice(dev, action) {
+      const st = deviceStates[dev];
+      st.clock++;
+      if (action === 'toggle') st.taskDone = !st.taskDone;
+      if (action === 'inc') st.counter++;
+
+      if (!st.offline) {
+        // Push to shared CRDT state and replicate to peer if peer is online
+        crdtSharedState.clock = Math.max(crdtSharedState.clock, st.clock);
+        crdtSharedState.taskDone = st.taskDone;
+        crdtSharedState.counter = Math.max(crdtSharedState.counter, st.counter);
+        syncCrdtReplicas();
+      }
+      renderLocalFirstDevices();
+    }
+
+    function syncCrdtReplicas() {
+      // Conflict-free CRDT merge across both replicas
+      const maxClock = Math.max(deviceStates.mac.clock, deviceStates.iphone.clock, crdtSharedState.clock);
+      const mergedCounter = Math.max(deviceStates.mac.counter, deviceStates.iphone.counter, crdtSharedState.counter);
+      const latestTaskDone = deviceStates.mac.clock >= deviceStates.iphone.clock
+        ? deviceStates.mac.taskDone
+        : deviceStates.iphone.taskDone;
+
+      crdtSharedState.clock = maxClock;
+      crdtSharedState.counter = mergedCounter;
+      crdtSharedState.taskDone = latestTaskDone;
+
+      if (!deviceStates.mac.offline) {
+        deviceStates.mac.clock = maxClock;
+        deviceStates.mac.counter = mergedCounter;
+        deviceStates.mac.taskDone = latestTaskDone;
+      }
+      if (!deviceStates.iphone.offline) {
+        deviceStates.iphone.clock = maxClock;
+        deviceStates.iphone.counter = mergedCounter;
+        deviceStates.iphone.taskDone = latestTaskDone;
+      }
+    }
+
+    // Lab 07C-1: CSS Anchor Positioning & contrast-color() Playground
+    function initAnchorPlayground() {
+      const stage = document.getElementById('anchorStage');
+      const trigger = document.getElementById('anchorTrigger');
+      const popover = document.getElementById('anchorPopover');
+      const flipLbl = document.getElementById('anchorFlipLabel');
+      if (!stage || !trigger || !popover) return;
+
+      let dragging = false;
+
+      const updateAnchorPosition = (clientX, clientY) => {
+        const rect = stage.getBoundingClientRect();
+        const x = Math.max(12, Math.min(rect.width - trigger.offsetWidth - 12, clientX - rect.left - trigger.offsetWidth / 2));
+        const y = Math.max(12, Math.min(rect.height - trigger.offsetHeight - 12, clientY - rect.top - trigger.offsetHeight / 2));
+
+        trigger.style.left = `${x}px`;
+        trigger.style.top = `${y}px`;
+
+        // Auto-flip popover edge when approaching top or right edges (simulating CSS position-try-fallbacks)
+        const flipToBottom = y < 95;
+        const popX = Math.max(10, Math.min(rect.width - popover.offsetWidth - 10, x));
+        const popY = flipToBottom ? y + trigger.offsetHeight + 10 : y - popover.offsetHeight - 10;
+
+        popover.style.left = `${popX}px`;
+        popover.style.top = `${popY}px`;
+        flipLbl.textContent = flipToBottom ? "FLIP: BOTTOM" : "FLIP: TOP";
+      };
+
+      trigger.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        trigger.setPointerCapture(e.pointerId);
+      });
+      trigger.addEventListener('pointermove', (e) => {
+        if (dragging) updateAnchorPosition(e.clientX, e.clientY);
+      });
+      trigger.addEventListener('pointerup', () => { dragging = false; });
+    }
+
+    function setAnchorColor(hex) {
+      const trigger = document.getElementById('anchorTrigger');
+      const readout = document.getElementById('contrastReadout');
+      trigger.style.backgroundColor = hex;
+
+      // Compute relative luminance to select high-contrast foreground text (contrast-color() simulation)
+      const r = parseInt(hex.slice(1, 3), 16) / 255;
+      const g = parseInt(hex.slice(3, 5), 16) / 255;
+      const b = parseInt(hex.slice(5, 7), 16) / 255;
+      const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      const fg = lum > 0.42 ? '#06070B' : '#FFFFFF';
+      const ratio = lum > 0.42 ? '13.8:1' : '11.4:1';
+
+      trigger.style.color = fg;
+      readout.textContent = `contrast-color() → ${fg} (${ratio})`;
+    }
+
+    // Lab 07C-2: WebGPU / WebNN On-Device Inference Meter
+    let infBackend = 'webgpu';
+    const infConfigs = {
+      cpu: {
+        tokSec: "11 tok/s",
+        power: "14.5 W",
+        label: "Single-Thread Wasm Scalar Fallback",
+        sample: "Running 3B quantized model on CPU threads: functional for short prompts, higher battery draw (14.5W)."
+      },
+      webgpu: {
+        tokSec: "68 tok/s",
+        power: "4.2 W",
+        label: "WGSL Matrix-Mul Compute Pipeline",
+        sample: "Quantized 4-bit weights loaded into GPU VRAM buffer. Streaming private local summary at 68 tokens/sec..."
+      },
+      webnn: {
+        tokSec: "94 tok/s",
+        power: "1.6 W",
+        label: "Dedicated NPU Tensor Graph (WebNN)",
+        sample: "Offloaded to Apple Neural Engine / Copilot+ NPU via WebNN: 94 tokens/sec at ultra-low 1.6W battery draw!"
+      }
+    };
+
+    function setInferenceBackend(backend) {
+      infBackend = backend;
+      ['cpu', 'webgpu', 'webnn'].forEach(b => {
+        const btn = document.getElementById(`btnInf${b.charAt(0).toUpperCase() + b.slice(1)}`);
+        if (!btn) return;
+        btn.className = b === backend
+          ? "py-2 px-2 rounded-xl text-xs font-mono font-semibold bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 transition"
+          : "py-2 px-2 rounded-xl text-xs font-mono font-semibold text-slate-400 hover:text-white transition";
+      });
+      const cfg = infConfigs[backend];
+      document.getElementById('infTokSec').textContent = cfg.tokSec;
+      document.getElementById('infPower').textContent = cfg.power;
+      document.getElementById('infShaderLabel').textContent = cfg.label;
+      streamLocalTokens();
+    }
+
+    let tokenStreamTimer = null;
+    function streamLocalTokens() {
+      if (tokenStreamTimer) clearInterval(tokenStreamTimer);
+      const out = document.getElementById('infStreamOutput');
+      const fullText = infConfigs[infBackend].sample;
+      const words = fullText.split(' ');
+      out.textContent = '';
+      let idx = 0;
+      const intervalMs = infBackend === 'webnn' ? 22 : infBackend === 'webgpu' ? 32 : 85;
+      tokenStreamTimer = setInterval(() => {
+        if (idx >= words.length) {
+          clearInterval(tokenStreamTimer);
+          return;
+        }
+        out.textContent += (idx === 0 ? '' : ' ') + words[idx];
+        idx++;
+      }, intervalMs);
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. AGENTIC COMMAND BAR (⌘K MODAL)
+    // -------------------------------------------------------------------------
+    const agentPresets = [
+      {
+        id: 'webrtcLoss',
+        title: "📡 Simulate 15% Packet Loss on WebRTC vs TCP",
+        desc: "Jumps to Lab 06A and injects packet loss to contrast UDP streams vs TCP Head-of-Line blocking",
+        color: "text-cyan-400"
+      },
+      {
+        id: 'fidoPhish',
+        title: "🛡️ Test Passkey Phishing Attack",
+        desc: "Switches to lookalike origin https://app-modernstack.dev and triggers WebAuthn rpIdHash rejection",
+        color: "text-rose-400"
+      },
+      {
+        id: 'offlinePush',
+        title: "🔔 Trigger Offline Web Push",
+        desc: "Closes browser tab, activates Airplane Mode, and dispatches VAPID encrypted OS notification",
+        color: "text-amber-400"
+      },
+      {
+        id: 'webmcpAgent',
+        title: "🤖 Invoke WebMCP Agent Tool",
+        desc: "Executes navigator.modelContext.registerTool() structured flight query in 42ms",
+        color: "text-cyan-300"
+      },
+      {
+        id: 'crdtSync',
+        title: "⇄ Test Local-First Offline CRDT Sync",
+        desc: "Mutates OPFS SQLite offline on MacBook and converges conflict-free with iPhone",
+        color: "text-emerald-400"
+      },
+      {
+        id: 'rscIslands',
+        title: "⚡ Switch to RSC Islands Mode",
+        desc: "Activates Modern RSC + Islands (14 KB JS, 0.6s LCP, 18ms INP) in Module 01",
+        color: "text-violet-400"
+      }
+    ];
+
+    let filteredPresets = [...agentPresets];
+
+    function renderAgentPresets() {
+      const container = document.getElementById('agentPresetList');
+      container.innerHTML = filteredPresets.map(p => `
+        <button onclick="executeAgentPreset('${p.id}')" class="w-full text-left p-2.5 rounded-xl hover:bg-white/[0.07] transition flex items-center justify-between gap-3 group">
+          <div>
+            <span class="text-xs font-semibold text-white group-hover:text-cyan-200 block">${p.title}</span>
+            <span class="text-[11px] text-slate-400">${p.desc}</span>
+          </div>
+          <span class="text-[10px] font-mono ${p.color} shrink-0">Run →</span>
+        </button>
+      `).join('');
+    }
+
+    function filterAgentPresets(query) {
+      const q = query.trim().toLowerCase();
+      filteredPresets = q
+        ? agentPresets.filter(p => p.title.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q))
+        : [...agentPresets];
+      renderAgentPresets();
+    }
+
+    function runTopFilteredPreset() {
+      if (filteredPresets.length > 0) {
+        executeAgentPreset(filteredPresets[0].id);
+      }
+    }
+
+    function openCommandModal() {
+      const modal = document.getElementById('commandModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      const input = document.getElementById('agentCommandInput');
+      input.value = '';
+      filteredPresets = [...agentPresets];
+      renderAgentPresets();
+      input.focus();
+    }
+
+    function closeCommandModal() {
+      const modal = document.getElementById('commandModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function executeAgentPreset(id) {
+      const log = document.getElementById('agentLogBox');
+      log.classList.remove('hidden');
+
+      if (id === 'webrtcLoss') {
+        log.textContent = "✓ Agent: Enabled WebRTC + 15% Packet Loss stress test in Lab 06A.";
+        setTransportProtocol('webrtc');
+        if (!hasPacketLoss) togglePacketLoss();
+        setTimeout(() => { closeCommandModal(); document.getElementById('lab-webrtc').scrollIntoView({ behavior: 'smooth' }); }, 650);
+      } else if (id === 'fidoPhish') {
+        log.textContent = "✓ Agent: Switched to lookalike phishing origin & verified FIDO2 cryptographic rejection.";
+        setFidoDomain('phish');
+        setTimeout(() => { closeCommandModal(); document.getElementById('lab-fido2').scrollIntoView({ behavior: 'smooth' }); }, 650);
+      } else if (id === 'offlinePush') {
+        log.textContent = "✓ Agent: Activated Offline Mode + Tab Closed & dispatched VAPID Web Push.";
+        if (isOnline) toggleNetworkState();
+        if (!isTabClosed) toggleTabState();
+        setTimeout(() => { closeCommandModal(); triggerSimulatedWebPush(); }, 650);
+      } else if (id === 'webmcpAgent') {
+        log.textContent = "✓ Agent: Invoked WebMCP navigator.modelContext tool (42ms).";
+        setWebMcpMode('webmcp');
+        setTimeout(() => { closeCommandModal(); document.getElementById('lab-webmcp').scrollIntoView({ behavior: 'smooth' }); }, 650);
+      } else if (id === 'crdtSync') {
+        log.textContent = "✓ Agent: Mutated MacBook OPFS SQLite offline & triggered CRDT delta convergence.";
+        if (!deviceStates.mac.offline) toggleDeviceOffline('mac');
+        mutateLocalDevice('mac', 'inc');
+        setTimeout(() => {
+          toggleDeviceOffline('mac');
+          closeCommandModal();
+          document.getElementById('lab-localfirst').scrollIntoView({ behavior: 'smooth' });
+        }, 700);
+      } else if (id === 'rscIslands') {
+        log.textContent = "✓ Agent: Switched to Modern RSC + Islands (14.0 KB JS, 0.6s LCP, 18ms INP).";
+        setRenderArch('islands');
+        setTimeout(() => { closeCommandModal(); document.getElementById('mod-islands').scrollIntoView({ behavior: 'smooth' }); }, 650);
+      }
+    }
+
+    // Global Keyboard Shortcuts (⌘K / Ctrl+K & Escape)
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openCommandModal();
+      } else if (e.key === 'Escape') {
+        closeCommandModal();
+      }
+    });
+
+    // Boot All 7 Modules on Load
+    window.addEventListener('load', () => {
+      selectPipelineStage(0);
+      startCinemaTour();
+      updateIslandsTelemetry();
+      renderEdgeMap();
+      animateEdgeLaser();
+      initWasmCanvas();
+      renderTypeSafePipeline();
+      updateTransportUi();
+      initTransportHighway();
+      setFidoDomain('legit');
+      selectSigningAlgo('ES256');
+      setWebMcpMode('webmcp');
+      renderLocalFirstDevices();
+      initAnchorPlayground();
+      setInferenceBackend('webgpu');
+    });
+  </script>
+</body>
+</html>

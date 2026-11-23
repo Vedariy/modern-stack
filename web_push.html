@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Интерактивный симулятор Web Push</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            slate: {
+              850: '#151e32',
+              925: '#0b1120',
+              950: '#060a14',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+          },
+          keyframes: {
+            glow: {
+              '0%': { boxShadow: '0 0 10px rgba(56, 189, 248, 0.2)' },
+              '100%': { boxShadow: '0 0 25px rgba(56, 189, 248, 0.6)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Кастомные скроллбары и анимации для SVG-путей и пакетов */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    .flow-line {
+      stroke-dasharray: 6 6;
+      animation: dashFlow 1.2s linear infinite;
+    }
+
+    @keyframes dashFlow {
+      to {
+        stroke-dashoffset: -12;
+      }
+    }
+
+    .node-card {
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .node-active {
+      transform: translateY(-2px);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.8), 0 12px 30px -8px rgba(56, 189, 248, 0.35);
+    }
+
+    .node-active-emerald {
+      transform: translateY(-2px);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.8), 0 12px 30px -8px rgba(16, 185, 129, 0.35);
+    }
+
+    .node-active-purple {
+      transform: translateY(-2px);
+      box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.8), 0 12px 30px -8px rgba(168, 85, 247, 0.35);
+    }
+
+    .node-active-amber {
+      transform: translateY(-2px);
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.8), 0 12px 30px -8px rgba(245, 158, 11, 0.35);
+    }
+
+    @keyframes toastSlideIn {
+      0% {
+        opacity: 0;
+        transform: translateX(40px) scale(0.95);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    .toast-enter {
+      animation: toastSlideIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-sky-500/30 selection:text-sky-200">
+
+  <!-- Верхняя панель навигации и управления -->
+  <header class="border-b border-slate-800/80 bg-slate-925/90 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">Архитектура Web Push</h1>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-sky-500/10 text-sky-400 border border-sky-500/20">Интерактивный симулятор</span>
+          </div>
+          <p class="text-xs text-slate-400">Визуализация VAPID, E2E-шифрования и фоновой работы Service Worker</p>
+        </div>
+      </div>
+
+      <!-- Переключатель режимов и сброс -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1">
+          <button id="btn-mode-step" onclick="setPlayMode('step')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-sky-500 text-white shadow-sm">
+            Пошагово
+          </button>
+          <button id="btn-mode-auto" onclick="setPlayMode('auto')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200">
+            Авто-проигрывание
+          </button>
+        </div>
+
+        <button onclick="resetSimulation()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 transition-all active:scale-95">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Сбросить демо
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Контейнер для всплывающих системных уведомлений (Toast OS) -->
+  <div id="os-notification-container" class="fixed top-20 right-4 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Основной контент -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex flex-col gap-6">
+
+    <!-- Панель прогресса фаз и пошагового управления -->
+    <section class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-4 sm:p-5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
+        <!-- Индикатор Фазы -->
+        <div class="flex items-center gap-2">
+          <span id="phase-badge" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-sky-500/15 text-sky-400 border border-sky-500/30">
+            Фаза 1: Подписка
+          </span>
+          <span id="step-counter" class="text-xs font-mono text-slate-400">Шаг 0 / 4</span>
+        </div>
+
+        <!-- Текущее описание шага -->
+        <div class="flex-1">
+          <h2 id="step-title" class="text-sm sm:text-base font-semibold text-white">Готово к запуску демонстрации</h2>
+          <p id="step-desc" class="text-xs sm:text-sm text-slate-400 mt-0.5">Нажмите «Начать Фазу 1», чтобы зарегистрировать Service Worker и оформить подписку на уведомления.</p>
+        </div>
+      </div>
+
+      <!-- Кнопки управления шагами -->
+      <div class="flex items-center gap-2.5 shrink-0 justify-end">
+        <button id="btn-prev-step" onclick="prevStep()" disabled class="px-3.5 py-2.5 rounded-xl text-xs font-medium bg-slate-800/80 text-slate-400 border border-slate-700/70 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 hover:text-white transition-all">
+          ← Назад
+        </button>
+        <button id="btn-next-step" onclick="nextStep()" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white shadow-lg shadow-sky-500/25 transition-all active:scale-95 flex items-center gap-2">
+          <span id="btn-next-label">Начать Фазу 1</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Визуальная схема архитектуры (4 узла + анимированные связи) -->
+    <section class="relative bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 sm:p-6 overflow-hidden">
+      <!-- Фоновая декоративная сетка -->
+      <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none"></div>
+
+      <!-- SVG слой для анимированных линий и летящих пакетов (Десктоп) -->
+      <div class="relative z-10">
+        <!-- Полоса визуализации маршрута пакетов (интерактивный трекер потока данных) -->
+        <div id="packet-banner" class="mb-5 rounded-xl bg-slate-950/90 border border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3 transition-all">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span id="packet-dot" class="w-2.5 h-2.5 rounded-full bg-slate-600 shrink-0"></span>
+            <span id="packet-route-text" class="text-xs font-mono text-slate-400 truncate">Ожидание действия: выберите шаг или отправьте Push</span>
+          </div>
+          <span id="packet-security-badge" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-slate-900 text-slate-400 border border-slate-800 shrink-0">
+            TLS / HTTPS
+          </span>
+        </div>
+
+        <!-- Сетка 4 узлов -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 relative">
+
+          <!-- УЗЕЛ 1: Браузер / Сайт (Client) -->
+          <div id="node-browser" class="node-card bg-slate-900/95 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between relative">
+            <div>
+              <!-- Шапка узла -->
+              <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-800/80">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center border border-sky-500/20">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-white">1. Браузер / Сайт</h3>
+                    <p class="text-[11px] text-slate-400 font-mono">Client (app.js)</p>
+                  </div>
+                </div>
+                <span id="browser-tab-badge" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  Вкладка открыта
+                </span>
+              </div>
+
+              <!-- Мини-окно браузера -->
+              <div id="mini-browser-window" class="mt-3 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden transition-all">
+                <!-- Панель вкладок браузера -->
+                <div class="bg-slate-900 px-3 py-1.5 border-b border-slate-800 flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+                    <span class="ml-2 text-[10px] font-mono text-slate-400">https://news.example.com</span>
+                  </div>
+                </div>
+
+                <!-- Содержимое вкладки -->
+                <div id="browser-content-open" class="p-3 space-y-2.5">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Разрешение:</span>
+                    <span id="permission-status" class="font-mono font-semibold text-amber-400">default</span>
+                  </div>
+
+                  <!-- Всплывающий системный запрос браузера (Шаг 2 Фазы 1) -->
+                  <div id="browser-permission-prompt" class="hidden rounded-xl bg-slate-800/95 border border-sky-500/50 p-3 shadow-lg space-y-2.5">
+                    <div class="flex items-start gap-2">
+                      <svg class="w-4 h-4 text-sky-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                      </svg>
+                      <p class="text-[11px] text-slate-200 leading-snug">
+                        Сайт <span class="font-semibold text-white">news.example.com</span> запрашивает разрешение на отправку уведомлений
+                      </p>
+                    </div>
+                    <div class="flex items-center justify-end gap-2">
+                      <button onclick="handlePermissionDecision(false)" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-700 hover:bg-rose-600/80 text-slate-200 hover:text-white transition-colors">
+                        Блокировать
+                      </button>
+                      <button onclick="handlePermissionDecision(true)" class="px-3 py-1 rounded-lg text-[11px] font-semibold bg-sky-500 hover:bg-sky-400 text-white shadow transition-colors">
+                        Разрешить
+                      </button>
+                    </div>
+                  </div>
+
+                  <div id="browser-idle-hint" class="text-[11px] text-slate-500 bg-slate-900/70 rounded-lg p-2.5 border border-slate-800/70">
+                    Страница загружена. Для подписки на пуши нужен Service Worker и согласие пользователя.
+                  </div>
+                </div>
+
+                <!-- Заглушка при закрытой вкладке -->
+                <div id="browser-content-closed" class="hidden p-4 text-center space-y-2 bg-slate-950/90">
+                  <div class="w-9 h-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-500">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                  <p class="text-xs font-medium text-slate-300">Вкладка с сайтом закрыта</p>
+                  <p class="text-[11px] text-slate-500 leading-relaxed">Код страницы выгружен из памяти, но браузер продолжает слушать системный канал.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Переключатель закрытия вкладки -->
+            <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              <span class="text-xs text-slate-400">Закрыть вкладку браузера</span>
+              <button id="toggle-tab-btn" onclick="toggleBrowserTab()" role="switch" aria-checked="false" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-slate-800 transition-colors duration-200 ease-in-out focus:outline-none">
+                <span id="toggle-tab-knob" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-slate-400 shadow ring-0 transition duration-200 ease-in-out translate-x-0"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- УЗЕЛ 2: Service Worker -->
+          <div id="node-sw" class="node-card bg-slate-900/95 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between relative">
+            <div>
+              <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-800/80">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-white">2. Service Worker</h3>
+                    <p class="text-[11px] text-slate-400 font-mono">Фоновый поток (sw.js)</p>
+                  </div>
+                </div>
+                <span id="sw-state-badge" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+                  Не зарегистрирован
+                </span>
+              </div>
+
+              <!-- Статус и ключи клиента -->
+              <div class="mt-3 space-y-2.5">
+                <div class="rounded-xl bg-slate-950 border border-slate-800 p-3 space-y-2">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Жизненный цикл:</span>
+                    <span id="sw-lifecycle-text" class="font-mono text-slate-300">unregistered</span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Приватный ключ E2E:</span>
+                    <span id="sw-private-key" class="font-mono text-slate-500">—</span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Обработчик <code class="text-emerald-400">onpush</code>:</span>
+                    <span id="sw-listener-status" class="font-mono text-slate-500">ожидание</span>
+                  </div>
+                </div>
+
+                <!-- Блок пробуждения SW -->
+                <div id="sw-wake-banner" class="rounded-xl bg-slate-950/70 border border-slate-800/80 p-2.5 text-[11px] text-slate-400 leading-relaxed">
+                  Service Worker работает отдельно от DOM-страницы. Браузер разбудит его даже при закрытой вкладке.
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500">
+              <span>API: PushManager</span>
+              <span>Notifications API</span>
+            </div>
+          </div>
+
+          <!-- УЗЕЛ 3: Push-сервис браузера (FCM / APNs / Mozilla) -->
+          <div id="node-pushservice" class="node-card bg-slate-900/95 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between relative">
+            <div>
+              <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-800/80">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center border border-amber-500/20">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-white">3. Push-сервис</h3>
+                    <p class="text-[11px] text-slate-400 font-mono">FCM / APNs / Autopush</p>
+                  </div>
+                </div>
+                <span id="ps-state-badge" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+                  В ожидании
+                </span>
+              </div>
+
+              <div class="mt-3 space-y-2.5">
+                <div class="rounded-xl bg-slate-950 border border-slate-800 p-3 space-y-2">
+                  <div class="text-xs text-slate-400">Выданный Endpoint:</div>
+                  <div id="ps-endpoint-display" class="font-mono text-[11px] text-slate-500 break-all bg-slate-900/80 p-2 rounded-lg border border-slate-800/80">
+                    Не сгенерирован
+                  </div>
+                  <div class="flex items-center justify-between text-xs pt-1">
+                    <span class="text-slate-400">Проверка VAPID JWT:</span>
+                    <span id="ps-vapid-check" class="font-mono text-slate-500">—</span>
+                  </div>
+                </div>
+
+                <!-- Подсказка про приватность -->
+                <div id="ps-privacy-box" class="rounded-xl bg-amber-500/5 border border-amber-500/20 p-2.5 flex items-start gap-2">
+                  <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <p id="ps-privacy-text" class="text-[11px] text-amber-200/80 leading-relaxed">
+                    Посредник-почтальон: видит только зашифрованный байтовый поток (RFC 8291) и не имеет ключей для чтения текста.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500">
+              <span>Web Push Protocol</span>
+              <span>HTTP/2</span>
+            </div>
+          </div>
+
+          <!-- УЗЕЛ 4: Бэкенд сайта (Application Server) -->
+          <div id="node-backend" class="node-card bg-slate-900/95 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between relative">
+            <div>
+              <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-800/80">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center border border-purple-500/20">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-white">4. Бэкенд сайта</h3>
+                    <p class="text-[11px] text-slate-400 font-mono">Application Server</p>
+                  </div>
+                </div>
+                <span id="db-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+                  БД: 0 подписок
+                </span>
+              </div>
+
+              <!-- Форма отправки уведомления (Фаза 2) -->
+              <div class="mt-3 space-y-2.5">
+                <div class="rounded-xl bg-slate-950 border border-slate-800 p-2.5 space-y-2">
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400">VAPID Ключи:</span>
+                    <span class="font-mono text-purple-400">ECDSA P-256 готовы</span>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Заголовок уведомления</label>
+                    <input id="push-title-input" type="text" value="Срочная новость 🚀" class="w-full bg-slate-900 border border-slate-700/80 focus:border-purple-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none transition-colors" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] text-slate-400 mb-1">Текст сообщения</label>
+                    <input id="push-body-input" type="text" value="Ваш заказ #4815 готов к выдаче!" class="w-full bg-slate-900 border border-slate-700/80 focus:border-purple-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none transition-colors" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Кнопка отправки Push -->
+            <div class="mt-3 pt-3 border-t border-slate-800/80">
+              <button id="btn-send-push" onclick="triggerPushDelivery()" disabled class="w-full py-2.5 px-3 rounded-xl text-xs font-semibold bg-purple-600 hover:bg-purple-500 disabled:bg-slate-800 disabled:text-slate-500 text-white shadow-lg shadow-purple-600/20 disabled:shadow-none transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                <span id="btn-send-push-text">Отправить Push (сначала подписка)</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Нижняя панель: Инспектор данных (JSON / Криптография) + Живой журнал событий -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1">
+
+      <!-- Инспектор структур данных и криптографии (7 колонок) -->
+      <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800/80 rounded-2xl flex flex-col overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-2 bg-slate-900">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            <h3 class="text-xs sm:text-sm font-semibold text-white">Инспектор данных и криптографии</h3>
+          </div>
+          <!-- Вкладки инспектора -->
+          <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+            <button onclick="switchInspectorTab('current')" id="tab-insp-current" class="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-800 text-sky-400 transition-colors">
+              Текущий пакет
+            </button>
+            <button onclick="switchInspectorTab('subscription')" id="tab-insp-subscription" class="px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-slate-200 transition-colors">
+              PushSubscription
+            </button>
+            <button onclick="switchInspectorTab('vapid')" id="tab-insp-vapid" class="px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-slate-200 transition-colors">
+              VAPID Ключи
+            </button>
+          </div>
+        </div>
+
+        <div class="p-4 flex-1 flex flex-col justify-between bg-slate-950/70">
+          <pre id="inspector-code" class="font-mono text-xs leading-relaxed text-sky-300 overflow-x-auto whitespace-pre-wrap break-words">{
+  "status": "idle",
+  "message": "Запустите Фазу 1, чтобы увидеть реальные структуры данных Web Push."
+}</pre>
+          <div id="inspector-footnote" class="mt-3 pt-2.5 border-t border-slate-800/70 text-[11px] text-slate-400 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+            <span>Все криптографические ключи и токены генерируются динамически для демонстрации протоколов RFC 8030, RFC 8291 и RFC 8292.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Живой журнал событий (5 колонок) -->
+      <div class="lg:col-span-5 bg-slate-900/80 border border-slate-800/80 rounded-2xl flex flex-col overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-800/80 flex items-center justify-between bg-slate-900">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3 class="text-xs sm:text-sm font-semibold text-white">Журнал событий (Timeline)</h3>
+          </div>
+          <span id="log-count" class="text-[11px] font-mono text-slate-400">0 событий</span>
+        </div>
+
+        <div id="event-log-list" class="p-3.5 space-y-2.5 overflow-y-auto max-h-[300px] flex-1 bg-slate-950/50">
+          <div class="text-xs text-slate-500 text-center py-8">
+            История событий пока пуста. Нажмите «Начать Фазу 1».
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    // =========================================================================
+    // СОСТОЯНИЕ СИМУЛЯТОРА И КРИПТОГРАФИЧЕСКИЕ ДАННЫЕ
+    // =========================================================================
+    const state = {
+      phase: 1, // 1: Подписка, 2: Доставка
+      step: 0,  // 0..4 внутри каждой фазы
+      playMode: 'step', // 'step' | 'auto'
+      autoTimer: null,
+      isTabClosed: false,
+      permission: 'default', // 'default' | 'granted' | 'denied'
+      isSubscribed: false,
+      inspectorTab: 'current',
+      logs: [],
+      crypto: {
+        vapidPublic: 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U',
+        vapidPrivate: 'UUxI4O8-FbRouAevSmBQ6o18hgE4nSG3qwvJTfKc-ls',
+        endpoint: 'https://fcm.googleapis.com/fcm/send/dK9xP2mL8qR:APA91bH7vN3xQ9wE2tY5uI8oP1aS4dF6gH8jK0lZ2xC4vB6nM8',
+        p256dh: 'BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8QcYP7DkM',
+        auth: 'tBHItJI5svbpez7KI4CCXg',
+        clientPrivate: 'e2e_ecdh_priv_9f8a7b6c5d4e3f2a1b0c'
+      },
+      lastEncryptedHex: '',
+      lastVapidJwt: ''
+    };
+
+    // Описания шагов для обеих фаз
+    const phase1Steps = [
+      {
+        title: 'Готово к запуску демонстрации',
+        desc: 'Нажмите «Начать Фазу 1», чтобы зарегистрировать Service Worker и оформить подписку на уведомления.',
+        btnLabel: 'Начать Фазу 1'
+      },
+      {
+        title: 'Шаг 1: Регистрация Service Worker (sw.js)',
+        desc: 'Скрипт страницы вызывает navigator.serviceWorker.register("/sw.js"). Браузер скачивает и устанавливает фоновый воркер.',
+        btnLabel: 'Далее: Запрос разрешения'
+      },
+      {
+        title: 'Шаг 2: Запрос разрешения у пользователя',
+        desc: 'Вызывается Notification.requestPermission(). Нажмите «Разрешить» во всплывающем окне браузера (или нажмите «Далее»).',
+        btnLabel: 'Разрешить и продолжить'
+      },
+      {
+        title: 'Шаг 3: Генерация подписки в Push-сервисе',
+        desc: 'Браузер передает публичный VAPID-ключ сайта в Push-сервис и получает уникальный Endpoint + ключи шифрования p256dh и auth.',
+        btnLabel: 'Далее: Сохранить на бэкенде'
+      },
+      {
+        title: 'Шаг 4: Сохранение PushSubscription в БД Бэкенда',
+        desc: 'Фронтенд отправляет JSON-объект подписки на Бэкенд сайта. Теперь сервер знает, куда и как шифровать пуши для этого клиента.',
+        btnLabel: 'Перейти к Фазе 2 (Отправка)'
+      }
+    ];
+
+    const phase2Steps = [
+      {
+        title: 'Фаза 2: Готово к отправке Push-уведомления',
+        desc: 'Отредактируйте заголовок и текст в карточке Бэкенда, при желании закройте вкладку браузера и нажмите «Отправить Push».',
+        btnLabel: 'Отправить Push'
+      },
+      {
+        title: 'Шаг 1: E2E-шифрование и подпись VAPID на Бэкенде',
+        desc: 'Бэкенд шифрует полезную нагрузку ключами пользователя (p256dh + auth) по стандарту RFC 8291 и подписывает запрос приватным VAPID-ключом.',
+        btnLabel: 'Далее: Отправка в Push-сервис'
+      },
+      {
+        title: 'Шаг 2: HTTPS POST-запрос в Push-сервис браузера',
+        desc: 'Зашифрованный пакет летит на Endpoint. Push-сервис проверяет подпись VAPID, но НЕ МОЖЕТ расшифровать текст уведомления.',
+        btnLabel: 'Далее: Пробуждение Service Worker'
+      },
+      {
+        title: 'Шаг 3: Доставка на устройство и пробуждение Service Worker',
+        desc: 'Push-сервис доставляет пакет по системному соединению ОС. Браузер «будит» спящий sw.js, даже если вкладка сайта закрыта.',
+        btnLabel: 'Далее: Показ уведомления'
+      },
+      {
+        title: 'Шаг 4: Расшифровка и вызов showNotification()',
+        desc: 'Внутри Service Worker срабатывает событие push: данные расшифровываются и отображается нативное уведомление ОС!',
+        btnLabel: 'Отправить ещё один Push'
+      }
+    ];
+
+    // =========================================================================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ГЕНЕРАЦИИ ДАННЫХ
+    // =========================================================================
+    function generateFakeCiphertext(title, body) {
+      const raw = JSON.stringify({ title, body, ts: Date.now() });
+      let hex = '';
+      for (let i = 0; i < Math.min(raw.length, 28); i++) {
+        const code = (raw.charCodeAt(i) * 137 + i * 31) % 256;
+        hex += code.toString(16).padStart(2, '0');
+      }
+      return btoa(hex).slice(0, 64) + '==';
+    }
+
+    function generateFakeJwt() {
+      const header = btoa(JSON.stringify({ typ: 'JWT', alg: 'ES256' })).replace(/=/g, '');
+      const payload = btoa(JSON.stringify({
+        aud: 'https://fcm.googleapis.com',
+        exp: Math.floor(Date.now() / 1000) + 43200,
+        sub: 'mailto:admin@news.example.com'
+      })).replace(/=/g, '');
+      const sig = 'MEUCIQDx9kL2p_8vR4mN7qW1zX5cV3bN6mK9jH2gF4dS1aQIgP8oI7uY6tR5eW4qA3sD2fG1hJ0kL9zX8cV7bN6m';
+      return `${header}.${payload}.${sig}`;
+    }
+
+    function addLog(source, message, type = 'info') {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      state.logs.unshift({ time: timeStr, source, message, type });
+      renderLogs();
+    }
+
+    function renderLogs() {
+      const container = document.getElementById('event-log-list');
+      const countEl = document.getElementById('log-count');
+      countEl.textContent = `${state.logs.length} ${getPlural(state.logs.length, 'событие', 'события', 'событий')}`;
+
+      if (state.logs.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-500 text-center py-8">История событий пока пуста. Нажмите «Начать Фазу 1».</div>`;
+        return;
+      }
+
+      const badgeColors = {
+        browser: 'bg-sky-500/15 text-sky-400 border-sky-500/30',
+        sw: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+        push: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+        backend: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+        error: 'bg-rose-500/15 text-rose-400 border-rose-500/30'
+      };
+
+      container.innerHTML = state.logs.map(log => `
+        <div class="rounded-xl bg-slate-900/90 border border-slate-800/90 p-2.5 text-xs flex items-start gap-2.5 transition-all">
+          <span class="font-mono text-[10px] text-slate-500 mt-0.5 shrink-0">${log.time}</span>
+          <div class="min-w-0 flex-1">
+            <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold border mb-1 ${badgeColors[log.type] || badgeColors.browser}">
+              ${log.source}
+            </span>
+            <p class="text-slate-300 leading-snug">${log.message}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getPlural(n, one, two, five) {
+      let num = Math.abs(n) % 100;
+      if (num >= 5 && num <= 20) return five;
+      num %= 10;
+      if (num === 1) return one;
+      if (num >= 2 && num <= 4) return two;
+      return five;
+    }
+
+    // =========================================================================
+    // УПРАВЛЕНИЕ РЕЖИМАМИ (ПОШАГОВЫЙ / АВТО) И ПЕРЕКЛЮЧАТЕЛЕМ ВКЛАДКИ
+    // =========================================================================
+    function setPlayMode(mode) {
+      state.playMode = mode;
+      const btnStep = document.getElementById('btn-mode-step');
+      const btnAuto = document.getElementById('btn-mode-auto');
+
+      if (mode === 'step') {
+        clearInterval(state.autoTimer);
+        state.autoTimer = null;
+        btnStep.className = 'px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-sky-500 text-white shadow-sm';
+        btnAuto.className = 'px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200';
+      } else {
+        btnAuto.className = 'px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-sky-500 text-white shadow-sm';
+        btnStep.className = 'px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-slate-200';
+        startAutoRunner();
+      }
+    }
+
+    function startAutoRunner() {
+      clearInterval(state.autoTimer);
+      // Если стоим в самом начале, сразу делаем первый шаг
+      if (state.phase === 1 && state.step === 0) {
+        nextStep();
+      }
+      state.autoTimer = setInterval(() => {
+        if (state.playMode !== 'auto') {
+          clearInterval(state.autoTimer);
+          return;
+        }
+        // Автоматически проходим Фазу 1 и один цикл Фазы 2
+        if (state.phase === 1) {
+          nextStep();
+        } else if (state.phase === 2 && state.step < 4) {
+          nextStep();
+        } else {
+          // Завершили авто-демонстрацию
+          clearInterval(state.autoTimer);
+          state.autoTimer = null;
+        }
+      }, 2300);
+    }
+
+    function toggleBrowserTab() {
+      state.isTabClosed = !state.isTabClosed;
+      const btn = document.getElementById('toggle-tab-btn');
+      const knob = document.getElementById('toggle-tab-knob');
+      const badge = document.getElementById('browser-tab-badge');
+      const contentOpen = document.getElementById('browser-content-open');
+      const contentClosed = document.getElementById('browser-content-closed');
+
+      btn.setAttribute('aria-checked', state.isTabClosed);
+
+      if (state.isTabClosed) {
+        btn.classList.remove('bg-slate-800');
+        btn.classList.add('bg-rose-500/80');
+        knob.classList.remove('translate-x-0', 'bg-slate-400');
+        knob.classList.add('translate-x-5', 'bg-white');
+        badge.textContent = 'Вкладка закрыта';
+        badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30';
+        contentOpen.classList.add('hidden');
+        contentClosed.classList.remove('hidden');
+        addLog('Браузер', 'Пользователь закрыл вкладку сайта. Service Worker остаётся зарегистрированным в фоне.', 'browser');
+      } else {
+        btn.classList.add('bg-slate-800');
+        btn.classList.remove('bg-rose-500/80');
+        knob.classList.add('translate-x-0', 'bg-slate-400');
+        knob.classList.remove('translate-x-5', 'bg-white');
+        badge.textContent = 'Вкладка открыта';
+        badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30';
+        contentOpen.classList.remove('hidden');
+        contentClosed.classList.add('hidden');
+        addLog('Браузер', 'Пользователь снова открыл вкладку сайта.', 'browser');
+      }
+    }
+
+    // =========================================================================
+    // ЛОГИКА ШАГОВ ФАЗЫ 1 И ФАЗЫ 2
+    // =========================================================================
+    function handlePermissionDecision(granted) {
+      if (granted) {
+        state.permission = 'granted';
+        document.getElementById('permission-status').textContent = 'granted';
+        document.getElementById('permission-status').className = 'font-mono font-semibold text-emerald-400';
+        document.getElementById('browser-permission-prompt').classList.add('hidden');
+        addLog('Браузер', 'Пользователь нажал «Разрешить». Статус Notification.permission = "granted".', 'browser');
+        // Переходим к Шагу 3 Фазы 1
+        goToState(1, 3);
+      } else {
+        state.permission = 'denied';
+        document.getElementById('permission-status').textContent = 'denied';
+        document.getElementById('permission-status').className = 'font-mono font-semibold text-rose-400';
+        document.getElementById('browser-permission-prompt').classList.add('hidden');
+        addLog('Браузер', 'Пользователь заблокировал уведомления (permission = "denied"). Подписка невозможна.', 'error');
+        setPacketBanner('Операция прервана: пользователь отклонил запрос на уведомления', 'bg-rose-500', 'Permission Denied');
+        updateInspector();
+      }
+    }
+
+    function nextStep() {
+      if (state.phase === 1) {
+        if (state.step === 0) {
+          goToState(1, 1);
+        } else if (state.step === 1) {
+          goToState(1, 2);
+        } else if (state.step === 2) {
+          // Если пользователь нажал «Разрешить и продолжить» на панели управления
+          if (state.permission !== 'granted') {
+            handlePermissionDecision(true);
+          } else {
+            goToState(1, 3);
+          }
+        } else if (state.step === 3) {
+          goToState(1, 4);
+        } else if (state.step === 4) {
+          // Переход к Фазе 2 и запуск первого шага доставки
+          goToState(2, 1);
+        }
+      } else if (state.phase === 2) {
+        if (state.step < 4) {
+          goToState(2, state.step + 1);
+        } else {
+          // Повторная отправка нового Push-уведомления
+          goToState(2, 1);
+        }
+      }
+    }
+
+    function prevStep() {
+      if (state.playMode === 'auto') {
+        setPlayMode('step');
+      }
+      if (state.phase === 1 && state.step > 0) {
+        goToState(1, state.step - 1);
+      } else if (state.phase === 2) {
+        if (state.step > 1) {
+          goToState(2, state.step - 1);
+        } else {
+          goToState(1, 4);
+        }
+      }
+    }
+
+    function triggerPushDelivery() {
+      if (!state.isSubscribed) return;
+      if (state.playMode === 'auto') {
+        goToState(2, 1);
+        startAutoRunner();
+      } else {
+        goToState(2, 1);
+      }
+    }
+
+    function goToState(phase, step) {
+      state.phase = phase;
+      state.step = step;
+
+      // Сброс подсветки всех 4 карточек
+      clearNodeHighlights();
+
+      // Обновление шапки управления
+      const info = phase === 1 ? phase1Steps[step] : phase2Steps[step];
+      document.getElementById('step-title').textContent = info.title;
+      document.getElementById('step-desc').textContent = info.desc;
+      document.getElementById('btn-next-label').textContent = info.btnLabel;
+      document.getElementById('step-counter').textContent = `Шаг ${step} / 4`;
+
+      const prevBtn = document.getElementById('btn-prev-step');
+      prevBtn.disabled = (phase === 1 && step === 0);
+
+      const phaseBadge = document.getElementById('phase-badge');
+      if (phase === 1) {
+        phaseBadge.textContent = 'Фаза 1: Подписка';
+        phaseBadge.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-sky-500/15 text-sky-400 border border-sky-500/30';
+      } else {
+        phaseBadge.textContent = 'Фаза 2: Отправка и доставка';
+        phaseBadge.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/30';
+      }
+
+      // Выполнение логики конкретного шага
+      if (phase === 1) {
+        executePhase1Step(step);
+      } else {
+        executePhase2Step(step);
+      }
+
+      updateInspector();
+    }
+
+    function executePhase1Step(step) {
+      const promptBox = document.getElementById('browser-permission-prompt');
+      const idleHint = document.getElementById('browser-idle-hint');
+
+      if (step === 0) {
+        promptBox.classList.add('hidden');
+        idleHint.classList.remove('hidden');
+        setPacketBanner('Ожидание действия: выберите шаг или отправьте Push', 'bg-slate-600', 'TLS / HTTPS');
+      }
+
+      if (step === 1) {
+        // Если вкладка была закрыта, временно откроем её для подписки
+        if (state.isTabClosed) toggleBrowserTab();
+        promptBox.classList.add('hidden');
+        idleHint.classList.add('hidden');
+
+        highlightNode('node-browser', 'node-active');
+        highlightNode('node-sw', 'node-active-emerald');
+
+        const swBadge = document.getElementById('sw-state-badge');
+        swBadge.textContent = 'Activated (Фон)';
+        swBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30';
+        document.getElementById('sw-lifecycle-text').textContent = 'activated (idle)';
+        document.getElementById('sw-lifecycle-text').className = 'font-mono text-emerald-400';
+        document.getElementById('sw-listener-status').textContent = 'подключен';
+        document.getElementById('sw-listener-status').className = 'font-mono text-emerald-400';
+
+        setPacketBanner('Браузер (app.js) ──▶ Регистрация фонового скрипта sw.js', 'bg-emerald-400 animate-ping', 'ServiceWorkerRegistration');
+        addLog('Браузер → SW', 'Выполнен navigator.serviceWorker.register("/sw.js"). Service Worker установлен и активирован.', 'sw');
+      }
+
+      if (step === 2) {
+        if (state.isTabClosed) toggleBrowserTab();
+        idleHint.classList.add('hidden');
+        promptBox.classList.remove('hidden');
+
+        highlightNode('node-browser', 'node-active');
+        setPacketBanner('Браузер ──▶ Ожидание решения пользователя (Notification.requestPermission)', 'bg-sky-400 animate-pulse', 'User Gesture');
+        addLog('Браузер', 'Показан системный диалог запроса разрешения на уведомления.', 'browser');
+      }
+
+      if (step === 3) {
+        promptBox.classList.add('hidden');
+        state.permission = 'granted';
+        document.getElementById('permission-status').textContent = 'granted';
+        document.getElementById('permission-status').className = 'font-mono font-semibold text-emerald-400';
+
+        highlightNode('node-sw', 'node-active-emerald');
+        highlightNode('node-pushservice', 'node-active-amber');
+
+        document.getElementById('sw-private-key').textContent = 'ECDH P-256 (в браузере)';
+        document.getElementById('sw-private-key').className = 'font-mono text-emerald-400';
+
+        const psBadge = document.getElementById('ps-state-badge');
+        psBadge.textContent = 'Endpoint выдан';
+        psBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30';
+
+        const epEl = document.getElementById('ps-endpoint-display');
+        epEl.textContent = state.crypto.endpoint;
+        epEl.className = 'font-mono text-[11px] text-amber-300 break-all bg-slate-900/90 p-2 rounded-lg border border-amber-500/30';
+
+        setPacketBanner('PushManager.subscribe(VAPID_PUB) ⇄ Push-сервис (FCM) ──▶ PushSubscription', 'bg-amber-400 animate-ping', 'ECDH + VAPID');
+        addLog('SW ⇄ Push-сервис', 'Создана подписка: получены уникальный Endpoint и публичные ключи шифрования p256dh и auth.', 'push');
+      }
+
+      if (step === 4) {
+        state.isSubscribed = true;
+        highlightNode('node-browser', 'node-active');
+        highlightNode('node-backend', 'node-active-purple');
+
+        const dbBadge = document.getElementById('db-status-badge');
+        dbBadge.textContent = 'БД: 1 подписка';
+        dbBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/40';
+
+        const sendBtn = document.getElementById('btn-send-push');
+        sendBtn.disabled = false;
+        document.getElementById('btn-send-push-text').textContent = 'Отправить Push';
+
+        setPacketBanner('Клиент ──▶ POST /api/subscribe (JSON PushSubscription) ──▶ Бэкенд БД', 'bg-purple-400 animate-ping', 'HTTPS JSON');
+        addLog('Клиент → Бэкенд', 'Объект PushSubscription (endpoint, p256dh, auth) сохранён в базе данных сервера.', 'backend');
+      }
+    }
+
+    function executePhase2Step(step) {
+      const title = document.getElementById('push-title-input').value.trim() || 'Новое уведомление';
+      const body = document.getElementById('push-body-input').value.trim() || 'Сообщение доставлено в фоне!';
+
+      if (step === 1) {
+        state.lastEncryptedHex = generateFakeCiphertext(title, body);
+        state.lastVapidJwt = generateFakeJwt();
+
+        highlightNode('node-backend', 'node-active-purple');
+        setPacketBanner('Бэкенд: Шифрование (p256dh + auth) + Подпись VAPID JWT (ES256)', 'bg-purple-400 animate-pulse', 'RFC 8291 + RFC 8292');
+        addLog('Бэкенд', `Текст «${title}» зашифрован ключами клиента и подписан приватным VAPID-ключом.`, 'backend');
+      }
+
+      if (step === 2) {
+        highlightNode('node-backend', 'node-active-purple');
+        highlightNode('node-pushservice', 'node-active-amber');
+
+        document.getElementById('ps-vapid-check').textContent = 'JWT валиден (201 Created)';
+        document.getElementById('ps-vapid-check').className = 'font-mono text-emerald-400';
+
+        const psBadge = document.getElementById('ps-state-badge');
+        psBadge.textContent = 'Пакет в очереди';
+        psBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40';
+
+        setPacketBanner('Бэкенд ──▶ HTTPS POST на Endpoint (Зашифрованный Payload) ──▶ Push-сервис', 'bg-amber-400 animate-ping', 'E2E Encrypted');
+        addLog('Бэкенд → Push-сервис', 'Зашифрованный пакет принят Push-сервисом. Посредник не видит текст сообщения.', 'push');
+      }
+
+      if (step === 3) {
+        highlightNode('node-pushservice', 'node-active-amber');
+        highlightNode('node-sw', 'node-active-emerald');
+
+        const swBadge = document.getElementById('sw-state-badge');
+        swBadge.textContent = 'WOKEN UP (Событие push)';
+        swBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500 text-slate-950 animate-pulse';
+        document.getElementById('sw-lifecycle-text').textContent = 'running (push event)';
+
+        const wakeBanner = document.getElementById('sw-wake-banner');
+        wakeBanner.className = 'rounded-xl bg-emerald-500/10 border border-emerald-500/40 p-2.5 text-[11px] text-emerald-200 leading-relaxed';
+        wakeBanner.textContent = state.isTabClosed
+          ? 'Вкладка браузера ЗАКРЫТА, но ОС и браузер разбудили Service Worker в фоне для обработки пакета!'
+          : 'Браузер передал зашифрованный пакет напрямую в фоновый поток Service Worker.';
+
+        setPacketBanner('Push-сервис ──▶ Системный канал ОС ──▶ Пробуждение Service Worker', 'bg-emerald-400 animate-ping', 'Background Wakeup');
+        addLog('Push-сервис → SW', `Устройство получило пакет. Service Worker разбужен в фоне (${state.isTabClosed ? 'вкладка закрыта' : 'вкладка открыта'}).`, 'sw');
+      }
+
+      if (step === 4) {
+        highlightNode('node-sw', 'node-active-emerald');
+        highlightNode('node-browser', 'node-active');
+
+        const swBadge = document.getElementById('sw-state-badge');
+        swBadge.textContent = 'Activated (Фон)';
+        swBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30';
+        document.getElementById('sw-lifecycle-text').textContent = 'activated (idle)';
+
+        setPacketBanner('Service Worker: Расшифровка E2E ──▶ self.registration.showNotification()', 'bg-sky-400 animate-ping', 'Notifications API');
+        addLog('Service Worker', `Payload расшифрован! Вызван showNotification("${title}").`, 'sw');
+
+        // Показать красивое системное уведомление на экране
+        showOsNotification(title, body);
+      }
+    }
+
+    // =========================================================================
+    // ВИЗУАЛЬНЫЕ ЭФФЕКТЫ (ПОДСВЕТКА УЗЛОВ, БАННЕР ПОТОКА, СИСТЕМНЫЙ TOAST)
+    // =========================================================================
+    function clearNodeHighlights() {
+      const nodes = ['node-browser', 'node-sw', 'node-pushservice', 'node-backend'];
+      nodes.forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('node-active', 'node-active-emerald', 'node-active-purple', 'node-active-amber');
+      });
+    }
+
+    function highlightNode(nodeId, activeClass) {
+      const el = document.getElementById(nodeId);
+      if (el) el.classList.add(activeClass);
+    }
+
+    function setPacketBanner(text, dotClasses, badgeText) {
+      document.getElementById('packet-route-text').textContent = text;
+      document.getElementById('packet-dot').className = `w-2.5 h-2.5 rounded-full shrink-0 ${dotClasses}`;
+      document.getElementById('packet-security-badge').textContent = badgeText;
+    }
+
+    function showOsNotification(title, body) {
+      const container = document.getElementById('os-notification-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast-enter pointer-events-auto bg-slate-900/95 backdrop-blur-md border border-sky-500/50 rounded-2xl p-3.5 shadow-2xl shadow-sky-950/80 flex items-start gap-3';
+      toast.innerHTML = `
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shrink-0 text-white shadow-md">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-sky-400">Системное уведомление • Browser</span>
+            <button onclick="this.closest('.toast-enter').remove()" class="text-slate-500 hover:text-slate-300 text-xs">✕</button>
+          </div>
+          <h4 class="text-sm font-bold text-white truncate mt-0.5">${escapeHtml(title)}</h4>
+          <p class="text-xs text-slate-300 mt-0.5 break-words leading-snug">${escapeHtml(body)}</p>
+          <div class="mt-1.5 text-[10px] font-mono text-slate-500">
+            Источник: news.example.com ${state.isTabClosed ? '(вкладка закрыта)' : ''}
+          </div>
+        </div>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(20px)';
+          toast.style.transition = 'all 0.3s ease';
+          setTimeout(() => toast.remove(), 300);
+        }
+      }, 6500);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    // =========================================================================
+    // ИНСПЕКТОР ДАННЫХ (JSON / КРИПТОГРАФИЯ)
+    // =========================================================================
+    function switchInspectorTab(tab) {
+      state.inspectorTab = tab;
+      ['current', 'subscription', 'vapid'].forEach(t => {
+        const el = document.getElementById(`tab-insp-${t}`);
+        if (t === tab) {
+          el.className = 'px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-800 text-sky-400 transition-colors';
+        } else {
+          el.className = 'px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-slate-200 transition-colors';
+        }
+      });
+      updateInspector();
+    }
+
+    function updateInspector() {
+      const codeEl = document.getElementById('inspector-code');
+
+      if (state.inspectorTab === 'subscription') {
+        if (!state.isSubscribed && !(state.phase === 1 && state.step >= 3)) {
+          codeEl.textContent = JSON.stringify({
+            status: 'not_subscribed',
+            hint: 'Пройдите до Шага 3 Фазы 1, чтобы сгенерировать объект PushSubscription.'
+          }, null, 2);
+        } else {
+          codeEl.textContent = JSON.stringify({
+            endpoint: state.crypto.endpoint,
+            expirationTime: null,
+            keys: {
+              p256dh: state.crypto.p256dh,
+              auth: state.crypto.auth
+            }
+          }, null, 2);
+        }
+        return;
+      }
+
+      if (state.inspectorTab === 'vapid') {
+        codeEl.textContent = JSON.stringify({
+          protocol: 'RFC 8292 (VAPID - Voluntary Application Server Identification)',
+          curve: 'P-256 (prime256v1)',
+          applicationServerKey_Public: state.crypto.vapidPublic,
+          applicationServerKey_Private: state.crypto.vapidPrivate + ' (Хранится строго на бэкенде!)'
+        }, null, 2);
+        return;
+      }
+
+      // Вкладка 'current' — контекстные данные для активного шага
+      const title = document.getElementById('push-title-input').value.trim() || 'Новое уведомление';
+      const body = document.getElementById('push-body-input').value.trim() || 'Сообщение доставлено в фоне!';
+
+      if (state.phase === 1) {
+        if (state.step === 0) {
+          codeEl.textContent = JSON.stringify({
+            status: 'idle',
+            message: 'Запустите Фазу 1, чтобы увидеть реальные структуры данных Web Push.'
+          }, null, 2);
+        } else if (state.step === 1) {
+          codeEl.textContent = `// Клиентский код (app.js)
+const registration = await navigator.serviceWorker.register('/sw.js');
+console.log('Service Worker зарегистрирован:', registration.scope);`;
+        } else if (state.step === 2) {
+          codeEl.textContent = `// Запрос прав у пользователя
+const permission = await Notification.requestPermission();
+// Текущий статус: "${state.permission}"`;
+        } else if (state.step === 3) {
+          codeEl.textContent = JSON.stringify({
+            action: 'pushManager.subscribe()',
+            userVisibleOnly: true,
+            applicationServerKey: state.crypto.vapidPublic,
+            result_PushSubscription: {
+              endpoint: state.crypto.endpoint,
+              keys: {
+                p256dh: state.crypto.p256dh,
+                auth: state.crypto.auth
+              }
+            }
+          }, null, 2);
+        } else if (state.step === 4) {
+          codeEl.textContent = `POST /api/save-subscription HTTP/1.1
+Host: news.example.com
+Content-Type: application/json
+
+${JSON.stringify({
+  userId: 'user_7741',
+  subscription: {
+    endpoint: state.crypto.endpoint,
+    keys: { p256dh: state.crypto.p256dh, auth: state.crypto.auth }
+  }
+}, null, 2)}`;
+        }
+      } else {
+        // Фаза 2
+        if (state.step === 1) {
+          codeEl.textContent = JSON.stringify({
+            step: 'E2E Encryption (RFC 8291 - aes128gcm)',
+            plaintext_payload: { title, body, icon: '/icon-192.png' },
+            encrypted_with_client_keys: {
+              p256dh: state.crypto.p256dh.slice(0, 24) + '...',
+              auth: state.crypto.auth
+            },
+            ciphertext_base64: state.lastEncryptedHex
+          }, null, 2);
+        } else if (state.step === 2) {
+          codeEl.textContent = `POST /fcm/send/dK9xP2mL8qR... HTTP/2
+Host: fcm.googleapis.com
+TTL: 86400
+Content-Encoding: aes128gcm
+Authorization: vapid t=${state.lastVapidJwt.slice(0, 42)}..., k=${state.crypto.vapidPublic.slice(0, 24)}...
+
+[Зашифрованные бинарные данные: ${state.lastEncryptedHex}]
+// Push-сервис НЕ МОЖЕТ прочитать содержимое этого тела запроса!`;
+        } else if (state.step === 3) {
+          codeEl.textContent = JSON.stringify({
+            event: 'OS_PUSH_WAKEUP',
+            target_worker: '/sw.js',
+            browser_tab_open: !state.isTabClosed,
+            encrypted_bytes_received: state.lastEncryptedHex
+          }, null, 2);
+        } else if (state.step === 4) {
+          codeEl.textContent = `// Внутри Service Worker (sw.js)
+self.addEventListener('push', (event) => {
+  // Браузер автоматически расшифровал payload приватным ключом устройства
+  const data = event.data.json(); // ${JSON.stringify({ title, body })}
+  
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icon-192.png'
+    })
+  );
+});`;
+        }
+      }
+    }
+
+    // =========================================================================
+    // ПОЛНЫЙ СБРОС ДЕМОНСТРАЦИИ
+    // =========================================================================
+    function resetSimulation() {
+      clearInterval(state.autoTimer);
+      state.autoTimer = null;
+      if (state.playMode === 'auto') {
+        setPlayMode('step');
+      }
+
+      if (state.isTabClosed) {
+        toggleBrowserTab();
+      }
+
+      state.phase = 1;
+      state.step = 0;
+      state.permission = 'default';
+      state.isSubscribed = false;
+      state.logs = [];
+
+      // Сброс UI элементов
+      document.getElementById('permission-status').textContent = 'default';
+      document.getElementById('permission-status').className = 'font-mono font-semibold text-amber-400';
+
+      const swBadge = document.getElementById('sw-state-badge');
+      swBadge.textContent = 'Не зарегистрирован';
+      swBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700';
+      document.getElementById('sw-lifecycle-text').textContent = 'unregistered';
+      document.getElementById('sw-lifecycle-text').className = 'font-mono text-slate-300';
+      document.getElementById('sw-private-key').textContent = '—';
+      document.getElementById('sw-private-key').className = 'font-mono text-slate-500';
+      document.getElementById('sw-listener-status').textContent = 'ожидание';
+      document.getElementById('sw-listener-status').className = 'font-mono text-slate-500';
+
+      const wakeBanner = document.getElementById('sw-wake-banner');
+      wakeBanner.className = 'rounded-xl bg-slate-950/70 border border-slate-800/80 p-2.5 text-[11px] text-slate-400 leading-relaxed';
+      wakeBanner.textContent = 'Service Worker работает отдельно от DOM-страницы. Браузер разбудит его даже при закрытой вкладке.';
+
+      const psBadge = document.getElementById('ps-state-badge');
+      psBadge.textContent = 'В ожидании';
+      psBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700';
+      const epEl = document.getElementById('ps-endpoint-display');
+      epEl.textContent = 'Не сгенерирован';
+      epEl.className = 'font-mono text-[11px] text-slate-500 break-all bg-slate-900/80 p-2 rounded-lg border border-slate-800/80';
+      document.getElementById('ps-vapid-check').textContent = '—';
+      document.getElementById('ps-vapid-check').className = 'font-mono text-slate-500';
+
+      const dbBadge = document.getElementById('db-status-badge');
+      dbBadge.textContent = 'БД: 0 подписок';
+      dbBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700';
+
+      const sendBtn = document.getElementById('btn-send-push');
+      sendBtn.disabled = true;
+      document.getElementById('btn-send-push-text').textContent = 'Отправить Push (сначала подписка)';
+
+      document.getElementById('os-notification-container').innerHTML = '';
+
+      renderLogs();
+      goToState(1, 0);
+    }
+
+    // Инициализация при загрузке
+    window.addEventListener('DOMContentLoaded', () => {
+      goToState(1, 0);
+    });
+  </script>
+</body>
+</html>
