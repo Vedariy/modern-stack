@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vedariy / modern-stack — 2026 Web Architecture Portfolio</title>
+  <meta name="description" content="Zero-dependency, interactive visual simulators of late-2026 web standards—RSC Islands, Edge KV, WebRTC/QUIC, FIDO2 Passkeys, VAPID Web Push, WebMCP, and Local-First OPFS CRDTs." />
+
+  <!-- Typography: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          colors: {
+            obsidian: '#06080f',
+            surface: '#0f1422',
+            accentCyan: '#38bdf8',
+            accentEmerald: '#34d399',
+            accentViolet: '#a78bfa',
+            accentAmber: '#fbbf24',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --bg-obsidian: #06080f;
+      --glass-surface: rgba(15, 20, 34, 0.72);
+      --border-hairline: rgba(255, 255, 255, 0.08);
+      --cyan: #38bdf8;
+      --emerald: #34d399;
+      --violet: #a78bfa;
+      --amber: #fbbf24;
+      --ease-cinema: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-obsidian);
+      color: #f1f5f9;
+    }
+
+    body {
+      background-color: var(--bg-obsidian);
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      margin: 0;
+    }
+
+    /* Deep Obsidian Atmospheric Radial Glows & Micro-Grid */
+    .cinema-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-color: #06080f;
+      background-image:
+        radial-gradient(circle at 16% 10%, rgba(56, 189, 248, 0.09), transparent 42%),
+        radial-gradient(circle at 84% 16%, rgba(167, 139, 250, 0.10), transparent 44%),
+        radial-gradient(circle at 50% 90%, rgba(52, 211, 153, 0.065), transparent 46%),
+        radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+    }
+
+    /* Interactive Full-Viewport Constellation Canvas */
+    #constellationCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.72;
+    }
+
+    /* Glassmorphic Architectural Cards */
+    .glass-panel {
+      background: var(--glass-surface);
+      backdrop-filter: blur(22px) saturate(140%);
+      -webkit-backdrop-filter: blur(22px) saturate(140%);
+      border: 1px solid var(--border-hairline);
+      box-shadow:
+        0 22px 54px -20px rgba(0, 0, 0, 0.82),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+      transition: transform 0.35s var(--ease-cinema), border-color 0.3s ease, box-shadow 0.35s var(--ease-cinema);
+    }
+
+    .glass-card-live:hover {
+      transform: translateY(-3px);
+      border-color: rgba(56, 189, 248, 0.34);
+      box-shadow:
+        0 28px 64px -18px rgba(0, 0, 0, 0.88),
+        0 0 38px -12px rgba(56, 189, 248, 0.18),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-card-blueprint:hover {
+      transform: translateY(-2px);
+      border-color: rgba(167, 139, 250, 0.3);
+      box-shadow:
+        0 24px 54px -18px rgba(0, 0, 0, 0.85),
+        0 0 30px -12px rgba(167, 139, 250, 0.14),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-gradient-text {
+      background: linear-gradient(135deg, #ffffff 0%, #bae6fd 48%, #ddd6fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Segmented Language Switcher Pill with Sliding Highlight */
+    .lang-pill {
+      position: relative;
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 3px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .lang-pill-slider {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: calc(50% - 3px);
+      height: calc(100% - 6px);
+      border-radius: 9px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.24), rgba(167, 139, 250, 0.24));
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.18);
+      transition: transform 0.28s var(--ease-cinema);
+      pointer-events: none;
+    }
+
+    .lang-pill[data-lang="ru"] .lang-pill-slider {
+      transform: translateX(100%);
+    }
+
+    /* Animated Fiber-Optic SVG Paths */
+    @keyframes fiberDash {
+      to { stroke-dashoffset: -40; }
+    }
+    .svg-fiber-flow {
+      stroke-dasharray: 5 8;
+      animation: fiberDash 1.5s linear infinite;
+    }
+
+    /* Subtle Language Toast Entrance */
+    @keyframes toastIn {
+      0% { opacity: 0; transform: translate(-50%, 14px) scale(0.96); }
+      100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    }
+    .toast-visible {
+      animation: toastIn 0.28s var(--ease-cinema) forwards;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .svg-fiber-flow { animation: none; }
+      .animate-ping, .animate-pulse { animation: none !important; }
+      .lang-pill-slider { transition: none; }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #06080f; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.45); }
+  </style>
+</head>
+<body class="antialiased selection:bg-sky-400/25 selection:text-sky-100 min-h-screen flex flex-col">
+
+  <!-- Atmospheric Backdrop & Mouse-Reactive Constellation Canvas -->
+  <div class="cinema-bg"></div>
+  <canvas id="constellationCanvas" aria-hidden="true"></canvas>
+
+  <!-- Subtle Floating Language / Action Toast -->
+  <div id="statusToast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden pointer-events-none">
+    <div class="glass-panel rounded-full px-4 py-2 border-sky-400/40 flex items-center gap-2.5 shadow-2xl toast-visible">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span id="statusToastText" class="text-xs font-mono font-medium text-slate-100 whitespace-nowrap"></span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 1. STICKY GLASSMORPHIC HEADER & EN / RU LANGUAGE SWITCHER             -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-40 border-b border-white/[0.08] bg-[#06080f]/80 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4">
+      <!-- Brand Badge -->
+      <a href="#top" class="flex items-center gap-2.5 sm:gap-3 group min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400/20 via-violet-400/20 to-emerald-400/20 border border-white/[0.12] flex items-center justify-center shrink-0 group-hover:border-sky-400/50 transition">
+          <svg class="w-4 h-4 text-sky-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1 font-mono text-xs sm:text-sm font-semibold tracking-tight truncate">
+            <span class="text-slate-400 group-hover:text-slate-200 transition">Vedariy</span>
+            <span class="text-slate-600">/</span>
+            <span class="text-white group-hover:text-sky-200 transition">modern-stack</span>
+          </div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="relative flex h-2 w-2 shrink-0">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+            </span>
+            <span data-i18n="header.status" class="text-[10px] sm:text-[11px] font-mono text-emerald-300/90 truncate">GitHub Pages Ready</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Right Controls: Segmented [EN | RU] Switcher + ⌘K + GitHub Repo -->
+      <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        <!-- Segmented Language Switcher Pill -->
+        <div id="langPill" class="lang-pill" data-lang="en" role="group" data-i18n-aria="header.langAria" aria-label="Language switcher">
+          <div class="lang-pill-slider" aria-hidden="true"></div>
+          <button
+            id="btnLangEn"
+            type="button"
+            onclick="setLanguage('en', true)"
+            class="relative z-10 px-2.5 sm:px-3 py-1.5 text-[11px] font-mono font-bold transition cursor-pointer text-white"
+            aria-pressed="true"
+          >EN</button>
+          <button
+            id="btnLangRu"
+            type="button"
+            onclick="setLanguage('ru', true)"
+            class="relative z-10 px-2.5 sm:px-3 py-1.5 text-[11px] font-mono font-bold transition cursor-pointer text-slate-400 hover:text-slate-200"
+            aria-pressed="false"
+          >RU</button>
+        </div>
+
+        <!-- Command Palette Trigger -->
+        <button
+          type="button"
+          onclick="openCommandPalette()"
+          data-i18n-aria="header.cmdAria"
+          aria-label="Open Command Palette"
+          class="flex items-center gap-2 px-2.5 sm:px-3 py-2 rounded-xl text-xs font-mono text-slate-300 bg-white/[0.045] hover:bg-white/[0.09] hover:text-white border border-white/[0.09] transition cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
+          </svg>
+          <span data-i18n="header.searchShort" class="hidden md:inline">Quick Jump</span>
+          <kbd class="px-1.5 py-0.5 text-[10px] rounded bg-white/[0.08] text-slate-200 border border-white/[0.08]">⌘K</kbd>
+        </button>
+
+        <!-- Direct GitHub Link -->
+        <a
+          href="https://github.com/Vedariy/modern-stack"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.11] hover:border-white/[0.22] transition"
+        >
+          <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+          </svg>
+          <span data-i18n="header.github" class="hidden sm:inline">GitHub</span>
+          <span class="text-slate-400" aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- 2. HERO SECTION                                                       -->
+  <!-- ===================================================================== -->
+  <section id="top" class="relative border-b border-white/[0.06]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-12 sm:pt-18 sm:pb-16">
+      <div class="max-w-3xl space-y-6">
+        <!-- Bilingual Eyebrow Pill -->
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-400/10 border border-sky-400/25 text-sky-300 text-[11px] sm:text-xs font-mono tracking-wide">
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+          <span data-i18n="hero.eyebrow">2026 WEB ARCHITECTURE PORTFOLIO</span>
+        </div>
+
+        <!-- Cinema Gradient Headline -->
+        <h1 data-i18n="hero.title" class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight hero-gradient-text leading-[1.08]">
+          Modern Web Architecture, Visualized.
+        </h1>
+
+        <!-- Subtitle -->
+        <p data-i18n="hero.subtitle" class="text-sm sm:text-base lg:text-lg text-slate-300/90 leading-relaxed max-w-2xl">
+          Zero-dependency, interactive visual simulators of late-2026 web standards—explore RSC Islands, Edge KV, WebRTC/QUIC, FIDO2 Passkeys, VAPID Web Push, WebMCP, and Local-First OPFS CRDTs directly in your browser.
+        </p>
+
+        <!-- Primary CTAs -->
+        <div class="flex flex-wrap items-center gap-3 pt-1">
+          <a
+            href="./modern-stack-2026.html"
+            class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold text-[#06080f] bg-gradient-to-r from-sky-400 via-cyan-300 to-violet-400 hover:brightness-110 shadow-[0_0_28px_rgba(56,189,248,0.3)] transition"
+          >
+            <span data-i18n="hero.ctaPrimary">Launch Flagship Simulator</span>
+            <span aria-hidden="true">→</span>
+          </a>
+          <button
+            type="button"
+            onclick="openCommandPalette()"
+            class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-mono font-semibold text-slate-100 bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.11] transition cursor-pointer"
+          >
+            <span data-i18n="hero.ctaSecondary">Open Command Palette (⌘K)</span>
+          </button>
+        </div>
+
+        <!-- Compact 4-Metric Telemetry Strip -->
+        <div class="pt-3 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl">
+          <div class="rounded-2xl bg-[#0f1422]/80 border border-white/[0.08] px-4 py-3 backdrop-blur-md">
+            <div class="font-mono text-lg font-bold text-sky-300">2</div>
+            <div data-i18n="hero.stat1" class="text-xs text-slate-400 mt-0.5">Live Simulators</div>
+          </div>
+          <div class="rounded-2xl bg-[#0f1422]/80 border border-white/[0.08] px-4 py-3 backdrop-blur-md">
+            <div class="font-mono text-lg font-bold text-violet-300">7+</div>
+            <div data-i18n="hero.stat2" class="text-xs text-slate-400 mt-0.5">Interactive Modules</div>
+          </div>
+          <div class="rounded-2xl bg-[#0f1422]/80 border border-white/[0.08] px-4 py-3 backdrop-blur-md">
+            <div class="font-mono text-lg font-bold text-emerald-300">0</div>
+            <div data-i18n="hero.stat3" class="text-xs text-slate-400 mt-0.5">Build Dependencies</div>
+          </div>
+          <div class="rounded-2xl bg-[#0f1422]/80 border border-white/[0.08] px-4 py-3 backdrop-blur-md">
+            <div class="font-mono text-lg font-bold text-amber-300">100%</div>
+            <div data-i18n="hero.stat4" class="text-xs text-slate-400 mt-0.5">Native Browser APIs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+
+    <!-- =================================================================== -->
+    <!-- 3. LIVE FILTER & SEARCH BAR                                         -->
+    <!-- =================================================================== -->
+    <section aria-label="Filter and search simulators" class="space-y-4">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- Category Pills (dynamically translated) -->
+        <div id="categoryPills" class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="setCategoryFilter('all')" data-cat="all" data-i18n="filter.all" class="cat-pill px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-sky-400/20 text-sky-200 border border-sky-400/40 transition cursor-pointer">All</button>
+          <button type="button" onclick="setCategoryFilter('architecture')" data-cat="architecture" data-i18n="filter.architecture" class="cat-pill px-3.5 py-2 rounded-xl text-xs font-mono font-medium bg-white/[0.04] text-slate-300 hover:text-white border border-white/[0.08] transition cursor-pointer">Architecture</button>
+          <button type="button" onclick="setCategoryFilter('pwa')" data-cat="pwa" data-i18n="filter.pwa" class="cat-pill px-3.5 py-2 rounded-xl text-xs font-mono font-medium bg-white/[0.04] text-slate-300 hover:text-white border border-white/[0.08] transition cursor-pointer">PWA &amp; Push</button>
+          <button type="button" onclick="setCategoryFilter('crypto')" data-cat="crypto" data-i18n="filter.crypto" class="cat-pill px-3.5 py-2 rounded-xl text-xs font-mono font-medium bg-white/[0.04] text-slate-300 hover:text-white border border-white/[0.08] transition cursor-pointer">Real-Time &amp; Crypto</button>
+          <button type="button" onclick="setCategoryFilter('frontier')" data-cat="frontier" data-i18n="filter.frontier" class="cat-pill px-3.5 py-2 rounded-xl text-xs font-mono font-medium bg-white/[0.04] text-slate-300 hover:text-white border border-white/[0.08] transition cursor-pointer">2026 Frontier</button>
+          <button type="button" onclick="setCategoryFilter('roadmap')" data-cat="roadmap" data-i18n="filter.roadmap" class="cat-pill px-3.5 py-2 rounded-xl text-xs font-mono font-medium bg-white/[0.04] text-slate-300 hover:text-white border border-white/[0.08] transition cursor-pointer">Roadmap</button>
+        </div>
+
+        <!-- Live Search Input -->
+        <div class="relative w-full lg:w-80">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
+          </svg>
+          <input
+            id="liveSearchInput"
+            type="text"
+            oninput="handleSearchInput(this.value)"
+            data-i18n-placeholder="filter.searchPlaceholder"
+            placeholder="Filter by title, file, or API tag..."
+            class="w-full pl-10 pr-9 py-2.5 rounded-xl bg-[#0f1422]/90 border border-white/[0.1] text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-sky-400/60 transition"
+          />
+          <button
+            id="clearSearchBtn"
+            type="button"
+            onclick="clearFilters()"
+            data-i18n-aria="filter.clearAria"
+            aria-label="Clear search"
+            class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-white cursor-pointer"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 4. FEATURED PORTFOLIO GRID (4 CARDS WITH ANIMATED SVG PREVIEWS)     -->
+    <!-- =================================================================== -->
+    <section aria-label="Interactive simulators portfolio">
+      <div id="portfolioGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- =============================================================== -->
+        <!-- CARD 1: FLAGSHIP (2 COLUMNS ON DESKTOP)                         -->
+        <!-- =============================================================== -->
+        <article
+          class="demo-card glass-panel glass-card-live lg:col-span-2 rounded-3xl p-6 sm:p-8 flex flex-col justify-between gap-6 relative overflow-hidden"
+          data-categories="all architecture pwa crypto frontier"
+          data-search="modern stack 2026 modern-stack-2026.html rsc islands edge kv webassembly wasm webrtc quic fido2 webauthn subtlecrypto webmcp opfs crdt webgpu архитектура острова граничные вычисления шифрование локальный фронтир"
+        >
+          <div class="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-sky-400/10 blur-3xl"></div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <!-- Left Content -->
+            <div class="lg:col-span-7 space-y-4">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-emerald-400/15 text-emerald-300 border border-emerald-400/35">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span data-i18n="card1.badgeLive">LIVE SIMULATOR</span>
+                </span>
+                <span data-i18n="card1.badgeModules" class="px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold text-violet-300 bg-violet-400/15 border border-violet-400/30">
+                  7 MODULES
+                </span>
+                <span class="px-2.5 py-1 rounded-full text-[11px] font-mono text-sky-300 bg-sky-400/10 border border-sky-400/25">
+                  ./modern-stack-2026.html
+                </span>
+              </div>
+
+              <h2 data-i18n="card1.title" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                MODERN STACK // 2026
+              </h2>
+
+              <p data-i18n="card1.desc" class="text-sm text-slate-300 leading-relaxed">
+                Cinema-class 7-module architecture simulator covering RSC &amp; Islands, Edge Routing, Native CSS/Wasm, Offline PWA, E2E Type Safety, WebRTC/QUIC + FIDO2/SubtleCrypto, and WebMCP + Local-First OPFS/CRDT.
+              </p>
+
+              <!-- Tech Tags -->
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.05] text-slate-200 border border-white/[0.08]">RSC/Islands</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.05] text-slate-200 border border-white/[0.08]">Edge KV</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.05] text-slate-200 border border-white/[0.08]">WebAssembly</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.05] text-slate-200 border border-white/[0.08]">WebRTC/QUIC</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.05] text-slate-200 border border-white/[0.08]">FIDO2/WebAuthn</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.05] text-slate-200 border border-white/[0.08]">SubtleCrypto</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-sky-400/10 text-sky-200 border border-sky-400/25">WebMCP</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-emerald-400/10 text-emerald-200 border border-emerald-400/25">OPFS/CRDT</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-violet-400/10 text-violet-200 border border-violet-400/25">WebGPU</span>
+              </div>
+
+              <!-- Buttons -->
+              <div class="flex flex-wrap items-center gap-3 pt-2">
+                <a
+                  href="./modern-stack-2026.html"
+                  class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-[#06080f] bg-gradient-to-r from-sky-400 via-cyan-300 to-violet-400 hover:brightness-110 shadow-[0_0_26px_rgba(56,189,248,0.28)] transition"
+                >
+                  <span data-i18n="common.launchDemo">Launch Demo →</span>
+                </a>
+                <button
+                  type="button"
+                  onclick="openSpecModal('modern-stack')"
+                  class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-mono font-semibold text-slate-200 bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.11] transition cursor-pointer"
+                >
+                  <span data-i18n="card1.inspectBtn">Inspect Modules</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right Custom Animated 7-Node Fiber-Optic SVG Pipeline Preview -->
+            <div class="lg:col-span-5">
+              <div class="rounded-2xl bg-[#06080f]/90 border border-white/[0.08] p-4 shadow-inner">
+                <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-3">
+                  <span data-i18n="card1.svgHeader" class="text-sky-300">7-STAGE FIBER PIPELINE</span>
+                  <span>60 FPS • ZERO-DEP</span>
+                </div>
+                <svg viewBox="0 0 420 190" class="w-full h-auto block" role="img" aria-label="7-node animated fiber-optic architecture pipeline">
+                  <defs>
+                    <linearGradient id="pipeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#38bdf8" />
+                      <stop offset="50%" stop-color="#a78bfa" />
+                      <stop offset="100%" stop-color="#34d399" />
+                    </linearGradient>
+                    <filter id="pulseGlow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="3" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+
+                  <!-- Gridlines -->
+                  <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+                    <line x1="0" y1="54" x2="420" y2="54" />
+                    <line x1="0" y1="114" x2="420" y2="114" />
+                    <line x1="0" y1="162" x2="420" y2="162" />
+                  </g>
+
+                  <!-- Curved Conduit -->
+                  <path id="flagshipFiberPath" d="M 30 56 C 72 22, 114 90, 156 56 C 198 22, 240 90, 282 56 C 324 22, 356 90, 390 56" stroke="rgba(255,255,255,0.1)" stroke-width="3" fill="none" />
+                  <path d="M 30 56 C 72 22, 114 90, 156 56 C 198 22, 240 90, 282 56 C 324 22, 356 90, 390 56" stroke="url(#pipeGrad)" stroke-width="2.4" fill="none" class="svg-fiber-flow" />
+
+                  <!-- Traveling Light Pulse -->
+                  <circle r="4.5" fill="#38bdf8" filter="url(#pulseGlow)">
+                    <animateMotion dur="3.4s" repeatCount="indefinite" path="M 30 56 C 72 22, 114 90, 156 56 C 198 22, 240 90, 282 56 C 324 22, 356 90, 390 56" />
+                  </circle>
+
+                  <!-- 7 Nodes -->
+                  <g font-family="JetBrains Mono, monospace" font-size="8" text-anchor="middle">
+                    <circle cx="30" cy="56" r="10" fill="rgba(56,189,248,0.18)" stroke="#38bdf8" stroke-width="1.5" />
+                    <text x="30" y="59" fill="#e0f2fe">01</text>
+                    <text x="30" y="79" fill="#94a3b8">RSC</text>
+
+                    <circle cx="93" cy="50" r="10" fill="rgba(56,189,248,0.16)" stroke="#38bdf8" stroke-width="1.5" />
+                    <text x="93" y="53" fill="#e0f2fe">02</text>
+                    <text x="93" y="73" fill="#94a3b8">EDGE</text>
+
+                    <circle cx="156" cy="56" r="10" fill="rgba(167,139,250,0.18)" stroke="#a78bfa" stroke-width="1.5" />
+                    <text x="156" y="59" fill="#ede9fe">03</text>
+                    <text x="156" y="79" fill="#94a3b8">WASM</text>
+
+                    <circle cx="219" cy="50" r="10" fill="rgba(251,191,36,0.16)" stroke="#fbbf24" stroke-width="1.5" />
+                    <text x="219" y="53" fill="#fef3c7">04</text>
+                    <text x="219" y="73" fill="#94a3b8">PWA</text>
+
+                    <circle cx="282" cy="56" r="10" fill="rgba(56,189,248,0.18)" stroke="#38bdf8" stroke-width="1.5" />
+                    <text x="282" y="59" fill="#e0f2fe">05</text>
+                    <text x="282" y="79" fill="#94a3b8">QUIC</text>
+
+                    <circle cx="336" cy="50" r="10" fill="rgba(52,211,153,0.18)" stroke="#34d399" stroke-width="1.5" />
+                    <text x="336" y="53" fill="#d1fae5">06</text>
+                    <text x="336" y="73" fill="#94a3b8">FIDO2</text>
+
+                    <circle cx="390" cy="56" r="11" fill="rgba(167,139,250,0.24)" stroke="#a78bfa" stroke-width="1.8" />
+                    <text x="390" y="59" fill="#ffffff" font-weight="bold">07</text>
+                    <text x="390" y="79" fill="#c4b5fd">MCP</text>
+                  </g>
+
+                  <!-- Telemetry Mini Bars -->
+                  <g font-family="JetBrains Mono, monospace" font-size="8.5">
+                    <rect x="20" y="124" width="84" height="32" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" />
+                    <text x="62" y="138" fill="#94a3b8" text-anchor="middle">LCP</text>
+                    <text x="62" y="150" fill="#34d399" font-weight="bold" text-anchor="middle">0.6s</text>
+
+                    <rect x="118" y="124" width="84" height="32" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" />
+                    <text x="160" y="138" fill="#94a3b8" text-anchor="middle">EDGE KV</text>
+                    <text x="160" y="150" fill="#38bdf8" font-weight="bold" text-anchor="middle">6 ms</text>
+
+                    <rect x="216" y="124" width="84" height="32" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" />
+                    <text x="258" y="138" fill="#94a3b8" text-anchor="middle">OPFS</text>
+                    <text x="258" y="150" fill="#34d399" font-weight="bold" text-anchor="middle">0.2 ms</text>
+
+                    <rect x="314" y="124" width="86" height="32" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" />
+                    <text x="357" y="138" fill="#94a3b8" text-anchor="middle">JS</text>
+                    <text x="357" y="150" fill="#a78bfa" font-weight="bold" text-anchor="middle">14 KB</text>
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- =============================================================== -->
+        <!-- CARD 2: STANDALONE LIVE DEMO (WEB PUSH & VAPID SIMULATOR)       -->
+        <!-- =============================================================== -->
+        <article
+          class="demo-card glass-panel glass-card-live rounded-3xl p-6 sm:p-7 flex flex-col justify-between gap-5"
+          data-categories="all pwa crypto"
+          data-search="web push vapid simulator webpush-simulator.html service worker pushsubscription endpoint p256dh auth jwt e2e encryption fcm apns ios pwa симулятор уведомления фоновая доставка закрытая вкладка шифрование"
+        >
+          <div class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-emerald-400/15 text-emerald-300 border border-emerald-400/35">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span data-i18n="card2.badgeLive">LIVE SIMULATOR</span>
+                </span>
+                <span class="px-2 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-400/15 text-amber-300 border border-amber-400/30">RU UI</span>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-mono text-sky-300 bg-sky-400/10 border border-sky-400/25">
+                ./webpush-simulator.html
+              </span>
+            </div>
+
+            <!-- Animated 3-Stage SVG Flow Preview -->
+            <div class="rounded-2xl bg-[#06080f]/90 border border-white/[0.08] p-3.5">
+              <svg viewBox="0 0 380 112" class="w-full h-auto block" role="img" aria-label="Backend VAPID to FCM/APNs to Background sw.js Wake flow">
+                <defs>
+                  <linearGradient id="pushFlowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#fbbf24" />
+                    <stop offset="50%" stop-color="#38bdf8" />
+                    <stop offset="100%" stop-color="#34d399" />
+                  </linearGradient>
+                </defs>
+
+                <!-- Fiber Links -->
+                <line x1="94" y1="54" x2="150" y2="54" stroke="url(#pushFlowGrad)" stroke-width="2.2" class="svg-fiber-flow" />
+                <line x1="230" y1="54" x2="286" y2="54" stroke="url(#pushFlowGrad)" stroke-width="2.2" class="svg-fiber-flow" />
+
+                <!-- Traveling Encrypted Packet -->
+                <circle r="3.5" fill="#fbbf24">
+                  <animateMotion dur="2.6s" repeatCount="indefinite" path="M 94 54 L 286 54" />
+                </circle>
+
+                <!-- Stage 1 -->
+                <rect x="12" y="26" width="82" height="56" rx="12" fill="rgba(251,191,36,0.09)" stroke="rgba(251,191,36,0.45)" stroke-width="1.2" />
+                <text x="53" y="48" fill="#fef3c7" font-family="JetBrains Mono, monospace" font-size="9" font-weight="bold" text-anchor="middle">BACKEND</text>
+                <text x="53" y="64" fill="#fbbf24" font-family="JetBrains Mono, monospace" font-size="8" text-anchor="middle">VAPID + E2E</text>
+
+                <!-- Stage 2 -->
+                <rect x="150" y="26" width="80" height="56" rx="12" fill="rgba(56,189,248,0.1)" stroke="rgba(56,189,248,0.45)" stroke-width="1.2" />
+                <text x="190" y="48" fill="#e0f2fe" font-family="JetBrains Mono, monospace" font-size="9" font-weight="bold" text-anchor="middle">FCM / APNs</text>
+                <text x="190" y="64" fill="#38bdf8" font-family="JetBrains Mono, monospace" font-size="8" text-anchor="middle">Push Relay</text>
+
+                <!-- Stage 3 -->
+                <rect x="286" y="26" width="82" height="56" rx="12" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.5)" stroke-width="1.4" />
+                <text x="327" y="48" fill="#d1fae5" font-family="JetBrains Mono, monospace" font-size="9" font-weight="bold" text-anchor="middle">sw.js WAKE</text>
+                <text x="327" y="64" fill="#34d399" font-family="JetBrains Mono, monospace" font-size="8" text-anchor="middle">OS Toast 🔔</text>
+
+                <text x="122" y="44" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="7.5" text-anchor="middle">p256dh</text>
+                <text x="258" y="44" fill="#94a3b8" font-family="JetBrains Mono, monospace" font-size="7.5" text-anchor="middle">Closed Tab</text>
+              </svg>
+            </div>
+
+            <div>
+              <h2 data-i18n="card2.title" class="text-xl font-bold text-white tracking-tight">Web Push &amp; VAPID Simulator</h2>
+              <p data-i18n="card2.desc" class="text-xs sm:text-sm text-slate-300/90 mt-2 leading-relaxed">
+                Step-by-step visualizer of Service Worker registration, PushSubscription (endpoint, p256dh, auth), VAPID JWT signing, E2E payload encryption, and background notification delivery even when the browser tab is closed.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-1.5">
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.05] text-slate-200 border border-white/[0.08]">Service Worker</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.05] text-slate-200 border border-white/[0.08]">Push API</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-amber-400/10 text-amber-200 border border-amber-400/25">VAPID JWT</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-sky-400/10 text-sky-200 border border-sky-400/25">p256dh / auth</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.05] text-slate-200 border border-white/[0.08]">iOS PWA</span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 pt-3 border-t border-white/[0.06]">
+            <a
+              href="./webpush-simulator.html"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-[#06080f] bg-gradient-to-r from-emerald-400 to-sky-400 hover:brightness-110 shadow-[0_0_24px_rgba(52,211,153,0.25)] transition"
+            >
+              <span data-i18n="common.launchDemo">Launch Demo →</span>
+            </a>
+            <button
+              type="button"
+              onclick="openSpecModal('webpush')"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-mono font-semibold text-slate-200 bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.11] transition cursor-pointer"
+            >
+              <span data-i18n="card2.inspectBtn">Inspect Specs</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- =============================================================== -->
+        <!-- CARD 3: ROADMAP BLUEPRINT (MODULE 08)                           -->
+        <!-- =============================================================== -->
+        <article
+          class="demo-card glass-panel glass-card-blueprint rounded-3xl p-6 sm:p-7 flex flex-col justify-between gap-5 border-dashed border-white/[0.13]"
+          data-categories="all roadmap architecture crypto frontier"
+          data-search="module 08 zero-latency digital credentials zero-latency-identity.html speculation rules mpa prerender trusted types xss firewall sd-jwt selective disclosure модуль 08 цифровые удостоверения дорожная карта безопасность"
+        >
+          <div class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span data-i18n="common.roadmapBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold bg-violet-400/15 text-violet-300 border border-violet-400/30">
+                ROADMAP BLUEPRINT
+              </span>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-mono text-slate-400 bg-white/[0.04] border border-white/[0.08]">
+                ./zero-latency-identity.html
+              </span>
+            </div>
+
+            <!-- Custom Wireframe SVG Preview -->
+            <div class="rounded-2xl bg-[#06080f]/80 border border-white/[0.06] p-3.5">
+              <svg viewBox="0 0 380 112" class="w-full h-auto block opacity-85" role="img" aria-label="Wireframe diagram for Speculation Rules, Trusted Types, and SD-JWT">
+                <rect x="14" y="18" width="106" height="76" rx="10" fill="none" stroke="rgba(167,139,250,0.4)" stroke-dasharray="4 4" stroke-width="1.2" />
+                <text x="67" y="48" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="8.5" text-anchor="middle">SPECULATION</text>
+                <text x="67" y="64" fill="#64748b" font-family="JetBrains Mono, monospace" font-size="8" text-anchor="middle">0ms Prerender</text>
+
+                <line x1="120" y1="56" x2="144" y2="56" stroke="rgba(255,255,255,0.2)" stroke-dasharray="3 3" />
+
+                <rect x="144" y="18" width="102" height="76" rx="10" fill="none" stroke="rgba(56,189,248,0.35)" stroke-dasharray="4 4" stroke-width="1.2" />
+                <text x="195" y="48" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8.5" text-anchor="middle">TRUSTED TYPES</text>
+                <text x="195" y="64" fill="#64748b" font-family="JetBrains Mono, monospace" font-size="8" text-anchor="middle">XSS Firewall</text>
+
+                <line x1="246" y1="56" x2="270" y2="56" stroke="rgba(255,255,255,0.2)" stroke-dasharray="3 3" />
+
+                <rect x="270" y="18" width="96" height="76" rx="10" fill="none" stroke="rgba(52,211,153,0.35)" stroke-dasharray="4 4" stroke-width="1.2" />
+                <text x="318" y="48" fill="#6ee7b7" font-family="JetBrains Mono, monospace" font-size="8.5" text-anchor="middle">SD-JWT</text>
+                <text x="318" y="64" fill="#64748b" font-family="JetBrains Mono, monospace" font-size="8" text-anchor="middle">ZK Claims</text>
+              </svg>
+            </div>
+
+            <div>
+              <h2 data-i18n="card3.title" class="text-xl font-bold text-slate-100 tracking-tight">Module 08: Zero-Latency &amp; Digital Credentials</h2>
+              <p data-i18n="card3.desc" class="text-xs sm:text-sm text-slate-400 mt-2 leading-relaxed">
+                Blueprint for Speculation Rules 0ms MPA prerendering, Trusted Types DOM XSS firewall, and W3C Digital Credentials with SD-JWT selective disclosure proofs.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-1.5">
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.03] text-slate-300 border border-white/[0.07]">Speculation Rules</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.03] text-slate-300 border border-white/[0.07]">Trusted Types</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.03] text-slate-300 border border-white/[0.07]">Digital Credentials</span>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.03] text-slate-300 border border-white/[0.07]">SD-JWT</span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 pt-3 border-t border-white/[0.06]">
+            <button
+              type="button"
+              onclick="openSpecModal('roadmap-08')"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-mono font-semibold text-violet-200 bg-violet-400/15 hover:bg-violet-400/25 border border-violet-400/35 transition cursor-pointer"
+            >
+              <span data-i18n="common.viewBlueprint">View Blueprint</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- =============================================================== -->
+        <!-- CARD 4: ROADMAP BLUEPRINT (MODULE 09)                           -->
+        <!-- =============================================================== -->
+        <article
+          class="demo-card glass-panel glass-card-blueprint lg:col-span-2 rounded-3xl p-6 sm:p-7 flex flex-col justify-between gap-5 border-dashed border-white/[0.13]"
+          data-categories="all roadmap frontier"
+          data-search="module 09 hardware spatial web hardware-spatial-web.html webhid webserial webbluetooth webxr spatial computing webcodecs audioworklet dsp hdr oklch модуль 09 аппаратный пространственный веб дорожная карта"
+        >
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div class="lg:col-span-7 space-y-4">
+              <div class="flex flex-wrap items-center gap-2">
+                <span data-i18n="common.roadmapBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold bg-violet-400/15 text-violet-300 border border-violet-400/30">
+                  ROADMAP BLUEPRINT
+                </span>
+                <span class="px-2.5 py-1 rounded-full text-[11px] font-mono text-slate-400 bg-white/[0.04] border border-white/[0.08]">
+                  ./hardware-spatial-web.html
+                </span>
+              </div>
+
+              <div>
+                <h2 data-i18n="card4.title" class="text-xl font-bold text-slate-100 tracking-tight">Module 09: Hardware &amp; Spatial Web</h2>
+                <p data-i18n="card4.desc" class="text-xs sm:text-sm text-slate-400 mt-2 leading-relaxed">
+                  Blueprint for direct browser-to-hardware bridges and next-gen media pipelines: WebHID/WebSerial/WebBluetooth, WebXR Spatial Computing, WebCodecs + AudioWorklet DSP, and HDR oklch().
+                </p>
+              </div>
+
+              <div class="flex flex-wrap gap-1.5">
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.03] text-slate-300 border border-white/[0.07]">WebHID / WebSerial</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.03] text-slate-300 border border-white/[0.07]">WebBluetooth</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.03] text-slate-300 border border-white/[0.07]">WebXR</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.03] text-slate-300 border border-white/[0.07]">WebCodecs + AudioWorklet</span>
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.03] text-slate-300 border border-white/[0.07]">HDR oklch()</span>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-3 pt-1">
+                <button
+                  type="button"
+                  onclick="openSpecModal('roadmap-09')"
+                  class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-mono font-semibold text-violet-200 bg-violet-400/15 hover:bg-violet-400/25 border border-violet-400/35 transition cursor-pointer"
+                >
+                  <span data-i18n="common.viewBlueprint">View Blueprint</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Custom Wireframe SVG Preview -->
+            <div class="lg:col-span-5">
+              <div class="rounded-2xl bg-[#06080f]/80 border border-white/[0.06] p-4">
+                <svg viewBox="0 0 380 124" class="w-full h-auto block opacity-85" role="img" aria-label="Wireframe diagram for WebXR Spatial, WebCodecs DSP, and WebHID">
+                  <polygon points="62,24 102,42 102,84 62,102 22,84 22,42" fill="none" stroke="rgba(167,139,250,0.45)" stroke-width="1.2" stroke-dasharray="3 3" />
+                  <line x1="62" y1="24" x2="62" y2="62" stroke="rgba(167,139,250,0.3)" />
+                  <line x1="62" y1="62" x2="102" y2="84" stroke="rgba(167,139,250,0.3)" />
+                  <line x1="62" y1="62" x2="22" y2="84" stroke="rgba(167,139,250,0.3)" />
+                  <text x="62" y="116" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="8.5" text-anchor="middle">WebXR Spatial</text>
+
+                  <path d="M 140 62 Q 152 28, 164 62 T 188 62 T 212 62 T 236 62" fill="none" stroke="rgba(56,189,248,0.6)" stroke-width="1.6" />
+                  <text x="188" y="116" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="8.5" text-anchor="middle">WebCodecs + DSP</text>
+
+                  <rect x="276" y="34" width="84" height="54" rx="10" fill="none" stroke="rgba(52,211,153,0.45)" stroke-width="1.2" stroke-dasharray="4 3" />
+                  <circle cx="300" cy="61" r="4" fill="rgba(52,211,153,0.65)" />
+                  <circle cx="318" cy="61" r="4" fill="rgba(56,189,248,0.65)" />
+                  <circle cx="336" cy="61" r="4" fill="rgba(167,139,250,0.65)" />
+                  <text x="318" y="116" fill="#6ee7b7" font-family="JetBrains Mono, monospace" font-size="8.5" text-anchor="middle">WebHID / Serial</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Empty Filter State -->
+      <div id="emptyState" class="hidden glass-panel rounded-3xl p-10 text-center space-y-3 mt-4">
+        <p data-i18n="filter.emptyText" class="font-mono text-sm text-slate-300">No simulators matched your current filter.</p>
+        <button type="button" onclick="clearFilters()" data-i18n="filter.resetBtn" class="px-4 py-2 rounded-xl text-xs font-mono font-semibold bg-sky-400/15 text-sky-200 border border-sky-400/35 hover:bg-sky-400/25 transition cursor-pointer">
+          Reset Filters
+        </button>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 5. REPOSITORY STRUCTURE & GITHUB PAGES DEPLOY BENTO CARD            -->
+    <!-- =================================================================== -->
+    <section aria-label="Repository structure and GitHub Pages deploy guide" class="glass-panel rounded-3xl p-6 sm:p-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Monospace Directory Tree -->
+        <div class="lg:col-span-6 space-y-3">
+          <div class="flex items-center gap-2 text-xs font-mono text-sky-300">
+            <span data-i18n="deploy.treeEyebrow">REPOSITORY STRUCTURE</span>
+            <span>•</span>
+            <span data-i18n="deploy.zeroBuild" class="text-slate-400">ZERO BUILD STEP</span>
+          </div>
+          <div class="rounded-2xl bg-[#06080f]/95 border border-white/[0.08] p-4 sm:p-5 font-mono text-xs leading-7 overflow-x-auto">
+            <div class="text-white font-bold">Vedariy/modern-stack/</div>
+            <div class="text-sky-300">├── index.html <span data-i18n="deploy.treeIndex" class="text-slate-500"># Bilingual Landing Hub (EN/RU)</span></div>
+            <div class="text-emerald-300">├── modern-stack-2026.html <span data-i18n="deploy.treeFlagship" class="text-slate-500"># 7-Module Flagship Simulator</span></div>
+            <div class="text-emerald-300">├── webpush-simulator.html <span data-i18n="deploy.treePush" class="text-slate-500"># Web Push &amp; VAPID Simulator</span></div>
+            <div class="text-violet-300/75">├── zero-latency-identity.html <span data-i18n="deploy.treeMod8" class="text-slate-600"># Planned: Module 08</span></div>
+            <div class="text-violet-300/75">└── hardware-spatial-web.html <span data-i18n="deploy.treeMod9" class="text-slate-600"># Planned: Module 09</span></div>
+          </div>
+        </div>
+
+        <!-- Step-by-Step GitHub Pages Deploy Checklist + Copy URL -->
+        <div class="lg:col-span-6 space-y-4">
+          <h3 data-i18n="deploy.title" class="text-lg sm:text-xl font-bold text-white">GitHub Pages Quick Deploy</h3>
+
+          <ol class="space-y-2 text-xs sm:text-sm text-slate-300">
+            <li class="flex items-start gap-2.5">
+              <span class="w-5 h-5 rounded-md bg-sky-400/15 border border-sky-400/30 text-sky-300 font-mono text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <span data-i18n="deploy.step1">Place index.html, modern-stack-2026.html, and webpush-simulator.html in the repository root.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="w-5 h-5 rounded-md bg-violet-400/15 border border-violet-400/30 text-violet-300 font-mono text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <span data-i18n="deploy.step2">Push to main and open Repo Settings → Pages → Source: Deploy from a branch (main / root).</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="w-5 h-5 rounded-md bg-emerald-400/15 border border-emerald-400/30 text-emerald-300 font-mono text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <span data-i18n="deploy.step3">Open your live URL below—all simulators run 100% client-side with native browser APIs.</span>
+            </li>
+          </ol>
+
+          <div class="p-3.5 rounded-2xl bg-[#06080f]/85 border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="min-w-0">
+              <span data-i18n="deploy.endpointLabel" class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">GitHub Pages Endpoint</span>
+              <code class="text-xs sm:text-sm font-mono text-emerald-300 truncate block">https://vedariy.github.io/modern-stack/</code>
+            </div>
+            <button
+              id="copyUrlBtn"
+              type="button"
+              onclick="copyGitHubPagesUrl()"
+              class="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold text-white bg-white/[0.07] hover:bg-sky-400/20 hover:text-sky-200 border border-white/[0.12] hover:border-sky-400/40 transition cursor-pointer"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span id="copyUrlText" data-i18n="deploy.copyBtn">Copy GitHub Pages URL</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/[0.07] mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-slate-500">
+      <div data-i18n="footer.left">Vedariy / modern-stack • Static GitHub Pages Portfolio Hub</div>
+      <div class="flex flex-wrap items-center gap-4">
+        <a href="./modern-stack-2026.html" class="hover:text-sky-300 transition">modern-stack-2026.html</a>
+        <a href="./webpush-simulator.html" class="hover:text-emerald-300 transition">webpush-simulator.html</a>
+        <a href="https://github.com/Vedariy/modern-stack" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">GitHub ↗</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- 6A. KEYBOARD-DRIVEN ⌘K COMMAND PALETTE MODAL                          -->
+  <!-- ===================================================================== -->
+  <div id="commandPalette" class="fixed inset-0 z-50 hidden items-start justify-center pt-16 sm:pt-24 px-4 bg-black/75 backdrop-blur-md" role="dialog" aria-modal="true" data-i18n-aria="cmd.dialogAria" aria-label="Command Palette">
+    <div class="glass-panel max-w-xl w-full rounded-2xl border-sky-400/35 overflow-hidden shadow-2xl">
+      <div class="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.08]">
+        <svg class="w-4 h-4 text-sky-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
+        </svg>
+        <input
+          id="cmdInput"
+          type="text"
+          oninput="renderCommandItems(this.value)"
+          data-i18n-placeholder="cmd.placeholder"
+          placeholder="Launch simulator, inspect specs, filter, or switch language..."
+          class="flex-1 bg-transparent text-sm text-white placeholder-slate-400 focus:outline-none"
+        />
+        <button type="button" onclick="closeCommandPalette()" class="px-2 py-1 rounded-lg text-[11px] font-mono text-slate-400 hover:text-white bg-white/[0.06] cursor-pointer">ESC</button>
+      </div>
+
+      <div id="cmdList" class="p-2 max-h-80 overflow-y-auto space-y-1"></div>
+
+      <div class="px-4 py-2.5 border-t border-white/[0.07] bg-black/30 flex items-center justify-between text-[11px] font-mono text-slate-400">
+        <span data-i18n="cmd.hint">↑↓ Navigate • ↵ Execute • ESC Close</span>
+        <span>Vedariy/modern-stack</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 6B. BILINGUAL SPECIFICATION / BLUEPRINT MODAL                         -->
+  <!-- ===================================================================== -->
+  <div id="specModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="specModalTitle">
+    <div class="glass-panel max-w-2xl w-full rounded-3xl p-6 sm:p-7 border-white/[0.14] max-h-[85vh] flex flex-col gap-5 shadow-2xl">
+      <div class="flex items-start justify-between gap-4 border-b border-white/[0.08] pb-4">
+        <div>
+          <span id="specModalEyebrow" class="text-[11px] font-mono uppercase tracking-wider text-sky-300"></span>
+          <h3 id="specModalTitle" class="text-xl font-bold text-white mt-1"></h3>
+        </div>
+        <button type="button" onclick="closeSpecModal()" data-i18n-aria="common.close" aria-label="Close" class="p-2 rounded-xl text-slate-400 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div id="specModalBody" class="overflow-y-auto pr-1 space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed"></div>
+
+      <div id="specModalFooter" class="pt-3 border-t border-white/[0.08] flex items-center justify-end gap-3"></div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- VANILLA JS STATE, BILINGUAL I18N ENGINE & INTERACTIVE CONTROLLERS     -->
+  <!-- ===================================================================== -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. COMPLETE BILINGUAL TRANSLATION DICTIONARY (EN / RU)
+    // -------------------------------------------------------------------------
+    const I18N = {
+      en: {
+        pageTitle: 'Vedariy / modern-stack — 2026 Web Architecture Portfolio',
+        toastLang: 'Language switched to English',
+        toastCopied: 'GitHub Pages URL copied to clipboard',
+        header: {
+          status: 'GitHub Pages Ready',
+          langAria: 'Language switcher',
+          cmdAria: 'Open Command Palette',
+          searchShort: 'Quick Jump',
+          github: 'GitHub'
+        },
+        hero: {
+          eyebrow: '2026 WEB ARCHITECTURE PORTFOLIO',
+          title: 'Modern Web Architecture, Visualized.',
+          subtitle: 'Zero-dependency, interactive visual simulators of late-2026 web standards—explore RSC Islands, Edge KV, WebRTC/QUIC, FIDO2 Passkeys, VAPID Web Push, WebMCP, and Local-First OPFS CRDTs directly in your browser.',
+          ctaPrimary: 'Launch Flagship Simulator',
+          ctaSecondary: 'Open Command Palette (⌘K)',
+          stat1: 'Live Simulators',
+          stat2: 'Interactive Modules',
+          stat3: 'Build Dependencies',
+          stat4: 'Native Browser APIs'
+        },
+        filter: {
+          all: 'All',
+          architecture: 'Architecture',
+          pwa: 'PWA & Push',
+          crypto: 'Real-Time & Crypto',
+          frontier: '2026 Frontier',
+          roadmap: 'Roadmap',
+          searchPlaceholder: 'Filter by title, file, or API tag...',
+          clearAria: 'Clear search',
+          emptyText: 'No simulators matched your current filter.',
+          resetBtn: 'Reset Filters'
+        },
+        common: {
+          launchDemo: 'Launch Demo →',
+          viewBlueprint: 'View Blueprint',
+          roadmapBadge: 'ROADMAP BLUEPRINT',
+          close: 'Close'
+        },
+        card1: {
+          badgeLive: 'LIVE SIMULATOR',
+          badgeModules: '7 MODULES',
+          title: 'MODERN STACK // 2026',
+          desc: 'Cinema-class 7-module architecture simulator covering RSC & Islands, Edge Routing, Native CSS/Wasm, Offline PWA, E2E Type Safety, WebRTC/QUIC + FIDO2/SubtleCrypto, and WebMCP + Local-First OPFS/CRDT.',
+          inspectBtn: 'Inspect Modules',
+          svgHeader: '7-STAGE FIBER PIPELINE'
+        },
+        card2: {
+          badgeLive: 'LIVE SIMULATOR',
+          title: 'Web Push & VAPID Simulator',
+          desc: 'Step-by-step visualizer of Service Worker registration, PushSubscription (endpoint, p256dh, auth), VAPID JWT signing, E2E payload encryption, and background notification delivery even when the browser tab is closed.',
+          inspectBtn: 'Inspect Specs'
+        },
+        card3: {
+          title: 'Module 08: Zero-Latency & Digital Credentials',
+          desc: 'Blueprint for Speculation Rules 0ms MPA prerendering, Trusted Types DOM XSS firewall, and W3C Digital Credentials with SD-JWT selective disclosure proofs.'
+        },
+        card4: {
+          title: 'Module 09: Hardware & Spatial Web',
+          desc: 'Blueprint for direct browser-to-hardware bridges and next-gen media pipelines: WebHID/WebSerial/WebBluetooth, WebXR Spatial Computing, WebCodecs + AudioWorklet DSP, and HDR oklch().'
+        },
+        deploy: {
+          treeEyebrow: 'REPOSITORY STRUCTURE',
+          zeroBuild: 'ZERO BUILD STEP',
+          treeIndex: '# Bilingual Landing Hub (EN/RU)',
+          treeFlagship: '# 7-Module Flagship Simulator',
+          treePush: '# Web Push & VAPID Simulator',
+          treeMod8: '# Planned: Module 08',
+          treeMod9: '# Planned: Module 09',
+          title: 'GitHub Pages Quick Deploy',
+          step1: 'Place index.html, modern-stack-2026.html, and webpush-simulator.html in the repository root.',
+          step2: 'Push to main and open Repo Settings → Pages → Source: Deploy from a branch (main / root).',
+          step3: 'Open your live URL below—all simulators run 100% client-side with native browser APIs.',
+          endpointLabel: 'GitHub Pages Endpoint',
+          copyBtn: 'Copy GitHub Pages URL',
+          copiedBtn: 'Copied!'
+        },
+        footer: {
+          left: 'Vedariy / modern-stack • Static GitHub Pages Portfolio Hub'
+        },
+        cmd: {
+          dialogAria: 'Command Palette',
+          placeholder: 'Launch simulator, inspect specs, filter, or switch language...',
+          hint: '↑↓ Navigate • ↵ Execute • ESC Close',
+          empty: 'No matching commands'
+        }
+      },
+      ru: {
+        pageTitle: 'Vedariy / modern-stack — Портфолио веб-архитектуры 2026',
+        toastLang: 'Язык переключён на русский',
+        toastCopied: 'URL GitHub Pages скопирован в буфер обмена',
+        header: {
+          status: 'Готово к GitHub Pages',
+          langAria: 'Переключатель языка',
+          cmdAria: 'Открыть командную палитру',
+          searchShort: 'Поиск',
+          github: 'GitHub'
+        },
+        hero: {
+          eyebrow: 'ПОРТФОЛИО ВЕБ-АРХИТЕКТУРЫ 2026',
+          title: 'Современная веб-архитектура в интерактиве.',
+          subtitle: 'Автономные визуальные симуляторы веб-стандартов конца 2026 года без сборщиков и зависимостей — изучайте RSC Islands, Edge KV, WebRTC/QUIC, FIDO2 Passkeys, VAPID Web Push, WebMCP и Local-First OPFS CRDT прямо в браузере.',
+          ctaPrimary: 'Запустить флагманский симулятор',
+          ctaSecondary: 'Командная палитра (⌘K)',
+          stat1: 'Рабочих симулятора',
+          stat2: 'Интерактивных модулей',
+          stat3: 'Зависимостей сборки',
+          stat4: 'Нативные API браузера'
+        },
+        filter: {
+          all: 'Все',
+          architecture: 'Архитектура',
+          pwa: 'PWA и Push',
+          crypto: 'Real-Time и Крипто',
+          frontier: 'Фронтир 2026',
+          roadmap: 'Дорожная карта',
+          searchPlaceholder: 'Фильтр по названию, файлу или API...',
+          clearAria: 'Очистить поиск',
+          emptyText: 'По вашему запросу ничего не найдено.',
+          resetBtn: 'Сбросить фильтры'
+        },
+        common: {
+          launchDemo: 'Открыть демо →',
+          viewBlueprint: 'Открыть концепт',
+          roadmapBadge: 'В ПЛАНАХ',
+          close: 'Закрыть'
+        },
+        card1: {
+          badgeLive: 'РАБОЧЕЕ ДЕМО',
+          badgeModules: '7 МОДУЛЕЙ',
+          title: 'MODERN STACK // 2026',
+          desc: 'Интерактивный симулятор веб-архитектуры из 7 модулей: RSC и острова, Edge-маршрутизация, нативный CSS/Wasm, офлайн-PWA, сквозная типизация, WebRTC/QUIC + FIDO2/SubtleCrypto, а также WebMCP и Local-First OPFS/CRDT.',
+          inspectBtn: 'Обзор модулей',
+          svgHeader: '7-ЭТАПНЫЙ КОНВЕЙЕР'
+        },
+        card2: {
+          badgeLive: 'РАБОЧЕЕ ДЕМО',
+          title: 'Симулятор Web Push и VAPID',
+          desc: 'Пошаговая визуализация регистрации Service Worker, объекта PushSubscription (endpoint, p256dh, auth), подписи VAPID JWT, сквозного E2E-шифрования и фоновой доставки уведомлений даже при закрытой вкладке браузера.',
+          inspectBtn: 'Спецификация'
+        },
+        card3: {
+          title: 'Модуль 08: Speculation Rules и Цифровые Удостоверения',
+          desc: 'Архитектурный концепт пререндеринга MPA за 0 мс через Speculation Rules, защиты от DOM XSS с Trusted Types и верифицируемых W3C Digital Credentials с выборочным раскрытием SD-JWT.'
+        },
+        card4: {
+          title: 'Модуль 09: Аппаратный и Пространственный Веб',
+          desc: 'Концепт прямого взаимодействия браузера с устройствами и медиа-конвейерами нового поколения: WebHID/WebSerial/WebBluetooth, WebXR Spatial Computing, WebCodecs + AudioWorklet DSP и HDR oklch().'
+        },
+        deploy: {
+          treeEyebrow: 'СТРУКТУРА РЕПОЗИТОРИЯ',
+          zeroBuild: 'БЕЗ СБОРКИ',
+          treeIndex: '# Двуязычный хаб-лендинг (EN/RU)',
+          treeFlagship: '# Флагманский симулятор (7 модулей)',
+          treePush: '# Симулятор Web Push и VAPID',
+          treeMod8: '# В планах: Модуль 08',
+          treeMod9: '# В планах: Модуль 09',
+          title: 'Быстрый деплой на GitHub Pages',
+          step1: 'Разместите index.html, modern-stack-2026.html и webpush-simulator.html в корне репозитория.',
+          step2: 'Отправьте коммит в main и включите Settings → Pages → Source: Deploy from a branch (main / root).',
+          step3: 'Откройте опубликованный URL — все симуляторы работают на 100% в браузере на нативных API.',
+          endpointLabel: 'Адрес GitHub Pages',
+          copyBtn: 'Копировать URL GitHub Pages',
+          copiedBtn: 'Скопировано!'
+        },
+        footer: {
+          left: 'Vedariy / modern-stack • Статический хаб-портфолио для GitHub Pages'
+        },
+        cmd: {
+          dialogAria: 'Командная палитра',
+          placeholder: 'Запустить демо, открыть концепт, выбрать фильтр или сменить язык...',
+          hint: '↑↓ Навигация • ↵ Выполнить • ESC Закрыть',
+          empty: 'Команды не найдены'
+        }
+      }
+    };
+
+    // Bilingual Spec & Blueprint Modal Data
+    const SPECS = {
+      'modern-stack': {
+        launchHref: './modern-stack-2026.html',
+        en: {
+          eyebrow: './modern-stack-2026.html • 7 INTERACTIVE MODULES',
+          title: 'MODERN STACK // 2026 — Module Architecture',
+          launchLabel: 'Launch Demo →',
+          items: [
+            { tag: '01', name: 'Islands Architecture & RSC', desc: 'Compare Legacy Monolithic SPA vs. Modern RSC + Islands and toggle individual islands to watch LCP, INP, JS bundle KB, and main-thread flamegraph morph in real time.' },
+            { tag: '02', name: 'Edge Computing & Global Routing', desc: 'Interactive world map comparing 5–8ms regional Edge Workers + KV Cache against 148–214ms Single Origin DB round-trips.' },
+            { tag: '03', name: 'Native Browser Superpowers', desc: 'Draggable CSS @container query sandbox, View Transitions API shared-element gallery, and Wasm SIMD vs. Single-Thread JS physics benchmark.' },
+            { tag: '04', name: 'Offline-First PWA & Encrypted Web Push', desc: 'Airplane Mode + Tab Closed simulation firing background VAPID p256dh/auth encrypted OS notifications via sw.js.' },
+            { tag: '05', name: 'End-to-End Type Safety', desc: 'Live TypeScript propagation (DB Schema → Server RPC → React UI Props) showing instant type inference and compile-time red squiggly errors.' },
+            { tag: '06', name: 'Real-Time Transport & Zero-Trust Crypto', desc: 'WebRTC vs. WebTransport (QUIC) vs. WebSockets (TCP) 4-lane packet highway with 15% loss toggle, FIDO2 Passkey phishing simulator, and live SubtleCrypto ES256/HMAC/DPoP signing.' },
+            { tag: '07', name: 'Late-2026 Browser Frontier', desc: 'WebMCP (navigator.modelContext) agent inspector, OPFS SQLite + CRDT dual-device sync, draggable CSS Anchor Positioning + contrast-color(), and WebGPU/WebNN inference meter.' }
+          ]
+        },
+        ru: {
+          eyebrow: './modern-stack-2026.html • 7 ИНТЕРАКТИВНЫХ МОДУЛЕЙ',
+          title: 'MODERN STACK // 2026 — Архитектура модулей',
+          launchLabel: 'Открыть демо →',
+          items: [
+            { tag: '01', name: 'Архитектура островов и RSC', desc: 'Сравнение монолитного SPA и RSC + Islands: включайте гидратацию отдельных компонентов и наблюдайте за LCP, INP, размером бандла и флеймграфом главного потока.' },
+            { tag: '02', name: 'Граничные вычисления (Edge KV)', desc: 'Интерактивная карта мира: сравнение локальных Edge Workers + KV (5–8 мс) с трансокеанскими запросами к единой БД Origin (148–214 мс).' },
+            { tag: '03', name: 'Нативные возможности браузера', desc: 'Интерактивный слайдер CSS @container, галерея View Transitions API и бенчмарк физики частиц Wasm SIMD против однопоточного JS.' },
+            { tag: '04', name: 'Офлайн-PWA и шифрованный Web Push', desc: 'Режим полёта и закрытая вкладка с фоновым пробуждением sw.js и расшифровкой VAPID p256dh/auth уведомлений.' },
+            { tag: '05', name: 'Сквозная типизация TypeScript', desc: 'Мгновенное распространение типов из схемы БД через Server RPC в пропсы React-компонента с подсветкой ошибок компиляции.' },
+            { tag: '06', name: 'Real-Time транспорт и Zero-Trust криптография', desc: '4-полосная трасса пакетов WebRTC / QUIC / TCP с потерей 15% пакетов, симулятор защиты Passkeys (FIDO2) от фишинга и живая подпись SubtleCrypto (ES256, HMAC, DPoP).' },
+            { tag: '07', name: 'Фронтир браузера конца 2026', desc: 'Инспектор агентных инструментов WebMCP (navigator.modelContext), офлайн-синхронизация OPFS SQLite + CRDT, CSS Anchor Positioning + contrast-color() и локальный инференс WebGPU/WebNN.' }
+          ]
+        }
+      },
+      'webpush': {
+        launchHref: './webpush-simulator.html',
+        codeSample: `{
+  "endpoint": "https://fcm.googleapis.com/fcm/send/e3x9...",
+  "keys": {
+    "p256dh": "BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQ...",
+    "auth": "tBHItJI5svbpez7KI4CCXg=="
+  }
+}`,
+        en: {
+          eyebrow: './webpush-simulator.html • 3-STEP DELIVERY ARCHITECTURE',
+          title: 'Web Push & VAPID Technical Specification',
+          launchLabel: 'Launch Demo →',
+          codeTitle: 'PushSubscription JSON Structure',
+          items: [
+            { tag: 'STEP 1', name: 'Client Subscription & Keys', desc: 'Registers sw.js, requests Notification permission, calls pushManager.subscribe() with the VAPID public key, and saves the PushSubscription (endpoint, p256dh, auth) on the backend.' },
+            { tag: 'STEP 2', name: 'VAPID JWT Signing & E2E Encryption', desc: 'Backend encrypts the notification payload using p256dh/auth keys, signs an ES256 VAPID JWT to prove origin identity, and sends an HTTPS POST to the browser push relay (FCM / APNs).' },
+            { tag: 'STEP 3', name: 'Background sw.js Wake-Up', desc: 'The OS wakes sw.js even if the browser tab is closed, dispatches the push event, decrypts the payload, and renders a native OS toast via self.registration.showNotification().' }
+          ]
+        },
+        ru: {
+          eyebrow: './webpush-simulator.html • 3-ЭТАПНАЯ АРХИТЕКТУРА ДОСТАВКИ',
+          title: 'Спецификация Web Push и VAPID',
+          launchLabel: 'Открыть демо →',
+          codeTitle: 'Структура JSON-объекта PushSubscription',
+          items: [
+            { tag: 'ЭТАП 1', name: 'Подписка на стороне клиента', desc: 'Регистрация фонового sw.js, запрос Notification.requestPermission(), вызов pushManager.subscribe() с публичным ключом VAPID и сохранение PushSubscription (endpoint, p256dh, auth) на бэкенде.' },
+            { tag: 'ЭТАП 2', name: 'Подпись VAPID JWT и E2E-шифрование', desc: 'Сервер шифрует текст уведомления ключами пользователя (p256dh, auth), подписывает запрос приватным ключом VAPID (ES256) и отправляет HTTPS POST на push-сервис (FCM / APNs).' },
+            { tag: 'ЭТАП 3', name: 'Фоновое пробуждение sw.js', desc: 'ОС пробуждает Service Worker даже при закрытой вкладке браузера, вызывает событие push, расшифровывает данные и показывает системное уведомление через showNotification().' }
+          ]
+        }
+      },
+      'roadmap-08': {
+        launchHref: null,
+        en: {
+          eyebrow: 'ROADMAP BLUEPRINT • ./zero-latency-identity.html',
+          title: 'Module 08: Zero-Latency & Digital Credentials',
+          items: [
+            { tag: '08A', name: 'Speculation Rules 0ms MPA Prerender', desc: 'Visual comparison of standard multi-page loads (~420ms) against declarative <script type="speculationrules"> predictive prerendering for instant 0ms swaps.' },
+            { tag: '08B', name: 'Trusted Types DOM XSS Firewall', desc: 'Interactive runtime sandbox showing how the browser engine blocks raw innerHTML injection unless sanitized by a strict TrustedHTML policy.' },
+            { tag: '08C', name: 'W3C Digital Credentials & SD-JWT', desc: 'Zero-knowledge selective disclosure demo proving "age >= 18" from a mobile OS wallet while cryptographically redacting name, birth date, and address.' }
+          ]
+        },
+        ru: {
+          eyebrow: 'АРХИТЕКТУРНЫЙ КОНЦЕПТ • ./zero-latency-identity.html',
+          title: 'Модуль 08: Speculation Rules и Цифровые Удостоверения',
+          items: [
+            { tag: '08A', name: 'Speculation Rules: пререндер MPA за 0 мс', desc: 'Сравнение обычной навигации (~420 мс) и предиктивного фонового пререндеринга через <script type="speculationrules"> с мгновенным переключением страниц.' },
+            { tag: '08B', name: 'Trusted Types: защита от DOM XSS', desc: 'Интерактивная песочница, показывающая, как движок браузера блокирует небезопасные присваивания innerHTML без политики TrustedHTML.' },
+            { tag: '08C', name: 'W3C Digital Credentials и SD-JWT', desc: 'Демонстрация выборочного раскрытия (Selective Disclosure): подтверждение «возраст >= 18» из цифрового кошелька без передачи ФИО и даты рождения.' }
+          ]
+        }
+      },
+      'roadmap-09': {
+        launchHref: null,
+        en: {
+          eyebrow: 'ROADMAP BLUEPRINT • ./hardware-spatial-web.html',
+          title: 'Module 09: Hardware & Spatial Web',
+          items: [
+            { tag: '09A', name: 'WebHID, WebSerial & WebBluetooth', desc: 'Packet inspector demonstrating direct browser communication with custom keyboards, MIDI decks, microcontrollers, and BLE sensors without native drivers.' },
+            { tag: '09B', name: 'WebXR Spatial Computing', desc: 'Stereoscopic spatial viewport and hand-tracking raycast lab designed for visionOS Safari, Quest, and Android XR headsets.' },
+            { tag: '09C', name: 'WebCodecs + AudioWorklet DSP & HDR oklch()', desc: 'Hardware-accelerated frame coding, lock-free audio synthesis threads, and wide-gamut Display P3 oklch() color ramps.' }
+          ]
+        },
+        ru: {
+          eyebrow: 'АРХИТЕКТУРНЫЙ КОНЦЕПТ • ./hardware-spatial-web.html',
+          title: 'Модуль 09: Аппаратный и Пространственный Веб',
+          items: [
+            { tag: '09A', name: 'WebHID, WebSerial и WebBluetooth', desc: 'Инспектор пакетов для прямого подключения браузера к кастомным клавиатурам, MIDI-контроллерам, микроконтроллерам и BLE-датчикам без драйверов.' },
+            { tag: '09B', name: 'WebXR и пространственные вычисления', desc: 'Стереоскопическая сцена и отслеживание жестов рук для visionOS Safari, Quest и Android XR прямо по URL.' },
+            { tag: '09C', name: 'WebCodecs + AudioWorklet DSP и HDR oklch()', desc: 'Аппаратное декодирование видеокадров, выделенный аудио-поток без задержек и широкий цветовой охват Display P3 в oklch().' }
+          ]
+        }
+      }
+    };
+
+    // -------------------------------------------------------------------------
+    // 2. APPLICATION STATE & LOCALSTORAGE PERSISTENCE
+    // -------------------------------------------------------------------------
+    let currentLang = 'en';
+    let activeCategory = 'all';
+    let searchQuery = '';
+    let activeSpecKey = null;
+    let selectedCmdIdx = 0;
+    let filteredCommands = [];
+    let toastTimer = null;
+
+    function detectInitialLanguage() {
+      try {
+        const saved = localStorage.getItem('modernstack_lang');
+        if (saved === 'en' || saved === 'ru') return saved;
+      } catch (e) {
+        // Ignore storage restrictions in private iframes
+      }
+      const navLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+      return navLang.startsWith('ru') ? 'ru' : 'en';
+    }
+
+    function t(path) {
+      const parts = path.split('.');
+      let obj = I18N[currentLang];
+      for (const p of parts) {
+        if (obj && p in obj) obj = obj[p];
+        else return path;
+      }
+      return obj;
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('statusToast');
+      const text = document.getElementById('statusToastText');
+      text.textContent = message;
+      toast.classList.remove('hidden');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2400);
+    }
+
+    function setLanguage(lang, notify = false) {
+      if (lang !== 'en' && lang !== 'ru') return;
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.title = t('pageTitle');
+
+      try {
+        localStorage.setItem('modernstack_lang', lang);
+      } catch (e) {
+        // Safe fallback
+      }
+
+      // Update segmented pill UI
+      const pill = document.getElementById('langPill');
+      pill.setAttribute('data-lang', lang);
+      const btnEn = document.getElementById('btnLangEn');
+      const btnRu = document.getElementById('btnLangRu');
+      btnEn.setAttribute('aria-pressed', String(lang === 'en'));
+      btnRu.setAttribute('aria-pressed', String(lang === 'ru'));
+      btnEn.className = `relative z-10 px-2.5 sm:px-3 py-1.5 text-[11px] font-mono font-bold transition cursor-pointer ${lang === 'en' ? 'text-white' : 'text-slate-400 hover:text-slate-200'}`;
+      btnRu.className = `relative z-10 px-2.5 sm:px-3 py-1.5 text-[11px] font-mono font-bold transition cursor-pointer ${lang === 'ru' ? 'text-white' : 'text-slate-400 hover:text-slate-200'}`;
+
+      // Re-render all static i18n text, placeholders & aria-labels
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        el.placeholder = t(el.dataset.i18nPlaceholder);
+      });
+      document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        el.setAttribute('aria-label', t(el.dataset.i18nAria));
+      });
+
+      // Re-render active Spec Modal if open
+      if (activeSpecKey && !document.getElementById('specModal').classList.contains('hidden')) {
+        openSpecModal(activeSpecKey);
+      }
+
+      // Re-render active Command Palette if open
+      if (!document.getElementById('commandPalette').classList.contains('hidden')) {
+        renderCommandItems(document.getElementById('cmdInput').value);
+      }
+
+      if (notify) {
+        showToast(t('toastLang'));
+      }
+    }
+
+    function toggleLanguage() {
+      setLanguage(currentLang === 'en' ? 'ru' : 'en', true);
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. LIVE CATEGORY FILTER & BILINGUAL SEARCH
+    // -------------------------------------------------------------------------
+    function setCategoryFilter(category) {
+      activeCategory = category;
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        const isActive = btn.dataset.cat === category;
+        btn.className = isActive
+          ? "cat-pill px-3.5 py-2 rounded-xl text-xs font-mono font-semibold bg-sky-400/20 text-sky-200 border border-sky-400/40 transition cursor-pointer"
+          : "cat-pill px-3.5 py-2 rounded-xl text-xs font-mono font-medium bg-white/[0.04] text-slate-300 hover:text-white border border-white/[0.08] transition cursor-pointer";
+      });
+      applyPortfolioFilters();
+    }
+
+    function handleSearchInput(val) {
+      searchQuery = val.trim().toLowerCase();
+      document.getElementById('clearSearchBtn').classList.toggle('hidden', searchQuery.length === 0);
+      applyPortfolioFilters();
+    }
+
+    function clearFilters() {
+      searchQuery = '';
+      document.getElementById('liveSearchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      setCategoryFilter('all');
+    }
+
+    function applyPortfolioFilters() {
+      const cards = document.querySelectorAll('.demo-card');
+      let visible = 0;
+
+      cards.forEach(card => {
+        const cats = (card.dataset.categories || '').split(' ');
+        const haystack = `${card.dataset.search || ''} ${card.textContent || ''}`.toLowerCase();
+        const catOk = activeCategory === 'all' || cats.includes(activeCategory);
+        const searchOk = !searchQuery || haystack.includes(searchQuery);
+
+        if (catOk && searchOk) {
+          card.classList.remove('hidden');
+          visible++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('emptyState').classList.toggle('hidden', visible > 0);
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. COPY GITHUB PAGES URL (iFrame-Safe execCommand)
+    // -------------------------------------------------------------------------
+    function copyGitHubPagesUrl() {
+      const url = 'https://vedariy.github.io/modern-stack/';
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (e) {
+        // Safe fallback
+      }
+      document.body.removeChild(ta);
+
+      const textEl = document.getElementById('copyUrlText');
+      const btn = document.getElementById('copyUrlBtn');
+      textEl.textContent = t('deploy.copiedBtn');
+      btn.classList.add('border-emerald-400/50', 'text-emerald-300', 'bg-emerald-400/15');
+      showToast(t('toastCopied'));
+
+      setTimeout(() => {
+        textEl.textContent = t('deploy.copyBtn');
+        btn.classList.remove('border-emerald-400/50', 'text-emerald-300', 'bg-emerald-400/15');
+      }, 2200);
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. BILINGUAL SPECIFICATION / BLUEPRINT MODAL
+    // -------------------------------------------------------------------------
+    function openSpecModal(key) {
+      const spec = SPECS[key];
+      if (!spec) return;
+      activeSpecKey = key;
+      const loc = spec[currentLang];
+
+      document.getElementById('specModalEyebrow').textContent = loc.eyebrow;
+      document.getElementById('specModalTitle').textContent = loc.title;
+
+      let html = loc.items.map(item => `
+        <div class="p-3.5 rounded-2xl bg-[#06080f]/85 border border-white/[0.07] flex items-start gap-3">
+          <span class="px-2 py-0.5 rounded-lg font-mono text-[11px] font-bold bg-sky-400/15 text-sky-300 border border-sky-400/25 shrink-0 mt-0.5">${item.tag}</span>
+          <div>
+            <h4 class="text-sm font-bold text-white">${item.name}</h4>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">${item.desc}</p>
+          </div>
+        </div>
+      `).join('');
+
+      if (spec.codeSample) {
+        html += `
+          <div class="space-y-1.5 pt-1">
+            <span class="text-[11px] font-mono text-emerald-300 block">${loc.codeTitle}</span>
+            <pre class="p-3.5 rounded-2xl bg-[#06080f] border border-white/[0.08] font-mono text-[11px] text-sky-200 overflow-x-auto leading-relaxed">${spec.codeSample}</pre>
+          </div>
+        `;
+      }
+
+      document.getElementById('specModalBody').innerHTML = html;
+
+      document.getElementById('specModalFooter').innerHTML = `
+        <button type="button" onclick="closeSpecModal()" class="px-4 py-2 rounded-xl text-xs font-mono font-semibold text-slate-300 bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] transition cursor-pointer">
+          ${t('common.close')}
+        </button>
+        ${spec.launchHref ? `
+          <a href="${spec.launchHref}" class="px-4 py-2 rounded-xl text-xs font-bold text-[#06080f] bg-gradient-to-r from-sky-400 to-emerald-400 hover:brightness-110 transition">
+            ${loc.launchLabel}
+          </a>
+        ` : ''}
+      `;
+
+      const modal = document.getElementById('specModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeSpecModal() {
+      activeSpecKey = null;
+      const modal = document.getElementById('specModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. KEYBOARD-DRIVEN ⌘K COMMAND PALETTE (BILINGUAL)
+    // -------------------------------------------------------------------------
+    function getCommandActions() {
+      const isRu = currentLang === 'ru';
+      return [
+        {
+          title: isRu ? 'Переключить язык (EN / RU)' : 'Switch Language (EN / RU)',
+          meta: isRu ? 'Текущий: Русский → English' : 'Current: English → Русский',
+          badge: isRu ? 'EN ↔ RU' : 'RU ↔ EN',
+          color: 'text-amber-300',
+          run: () => { toggleLanguage(); }
+        },
+        {
+          title: isRu ? 'Запустить MODERN STACK // 2026' : 'Launch MODERN STACK // 2026',
+          meta: './modern-stack-2026.html',
+          badge: isRu ? 'ДЕМО' : 'LAUNCH',
+          color: 'text-sky-300',
+          run: () => { window.location.href = './modern-stack-2026.html'; }
+        },
+        {
+          title: isRu ? 'Запустить симулятор Web Push и VAPID' : 'Launch Web Push & VAPID Simulator',
+          meta: './webpush-simulator.html',
+          badge: isRu ? 'ДЕМО' : 'LAUNCH',
+          color: 'text-emerald-300',
+          run: () => { window.location.href = './webpush-simulator.html'; }
+        },
+        {
+          title: isRu ? 'Обзор модулей MODERN STACK // 2026 (01–07)' : 'Inspect MODERN STACK // 2026 Modules (01–07)',
+          meta: isRu ? 'Все 7 интерактивных модулей' : 'All 7 interactive modules',
+          badge: isRu ? 'ОБЗОР' : 'SPECS',
+          color: 'text-violet-300',
+          run: () => { closeCommandPalette(); openSpecModal('modern-stack'); }
+        },
+        {
+          title: isRu ? 'Спецификация Web Push и PushSubscription' : 'Inspect Web Push & PushSubscription Specs',
+          meta: isRu ? '3 этапа доставки и JSON ключей' : '3-step delivery & keys JSON',
+          badge: isRu ? 'ОБЗОР' : 'SPECS',
+          color: 'text-emerald-300',
+          run: () => { closeCommandPalette(); openSpecModal('webpush'); }
+        },
+        {
+          title: isRu ? 'Концепт Модуля 08: Speculation Rules и SD-JWT' : 'View Blueprint: Module 08 (Zero-Latency & SD-JWT)',
+          meta: './zero-latency-identity.html',
+          badge: isRu ? 'КОНЦЕПТ' : 'BLUEPRINT',
+          color: 'text-violet-300',
+          run: () => { closeCommandPalette(); openSpecModal('roadmap-08'); }
+        },
+        {
+          title: isRu ? 'Концепт Модуля 09: WebHID, WebXR и WebCodecs' : 'View Blueprint: Module 09 (Hardware & Spatial Web)',
+          meta: './hardware-spatial-web.html',
+          badge: isRu ? 'КОНЦЕПТ' : 'BLUEPRINT',
+          color: 'text-violet-300',
+          run: () => { closeCommandPalette(); openSpecModal('roadmap-09'); }
+        },
+        {
+          title: isRu ? 'Фильтр: Real-Time и Крипто' : 'Filter: Real-Time & Crypto',
+          meta: 'WebRTC, QUIC, FIDO2, SubtleCrypto',
+          badge: isRu ? 'ФИЛЬТР' : 'FILTER',
+          color: 'text-sky-300',
+          run: () => { closeCommandPalette(); setCategoryFilter('crypto'); }
+        },
+        {
+          title: isRu ? 'Фильтр: Дорожная карта' : 'Filter: Roadmap',
+          meta: isRu ? 'Планируемые модули 08 и 09' : 'Planned Modules 08 & 09',
+          badge: isRu ? 'ФИЛЬТР' : 'FILTER',
+          color: 'text-violet-300',
+          run: () => { closeCommandPalette(); setCategoryFilter('roadmap'); }
+        },
+        {
+          title: isRu ? 'Открыть репозиторий Vedariy/modern-stack' : 'Open Vedariy/modern-stack on GitHub',
+          meta: 'https://github.com/Vedariy/modern-stack',
+          badge: 'GITHUB ↗',
+          color: 'text-slate-300',
+          run: () => { window.open('https://github.com/Vedariy/modern-stack', '_blank', 'noopener,noreferrer'); closeCommandPalette(); }
+        }
+      ];
+    }
+
+    function openCommandPalette() {
+      const modal = document.getElementById('commandPalette');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      const input = document.getElementById('cmdInput');
+      input.value = '';
+      selectedCmdIdx = 0;
+      renderCommandItems('');
+      setTimeout(() => input.focus(), 20);
+    }
+
+    function closeCommandPalette() {
+      const modal = document.getElementById('commandPalette');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function renderCommandItems(query) {
+      const q = (query || '').trim().toLowerCase();
+      const actions = getCommandActions();
+      filteredCommands = q
+        ? actions.filter(a => a.title.toLowerCase().includes(q) || a.meta.toLowerCase().includes(q))
+        : actions;
+
+      if (selectedCmdIdx >= filteredCommands.length) selectedCmdIdx = 0;
+
+      const list = document.getElementById('cmdList');
+      if (filteredCommands.length === 0) {
+        list.innerHTML = `<div class="p-4 text-center text-xs font-mono text-slate-500">${t('cmd.empty')}</div>`;
+        return;
+      }
+
+      list.innerHTML = filteredCommands.map((item, idx) => `
+        <button
+          type="button"
+          onclick="executeCommandAt(${idx})"
+          onmouseenter="selectedCmdIdx=${idx}; highlightSelectedCmd()"
+          class="cmd-item w-full text-left px-3.5 py-2.5 rounded-xl flex items-center justify-between gap-3 transition cursor-pointer ${idx === selectedCmdIdx ? 'bg-white/[0.09] border border-sky-400/35' : 'border border-transparent hover:bg-white/[0.06]'}"
+        >
+          <div class="min-w-0">
+            <div class="text-xs sm:text-sm font-semibold text-white truncate">${item.title}</div>
+            <div class="text-[11px] font-mono text-slate-400 truncate">${item.meta}</div>
+          </div>
+          <span class="text-[10px] font-mono font-bold ${item.color} shrink-0">${item.badge}</span>
+        </button>
+      `).join('');
+    }
+
+    function highlightSelectedCmd() {
+      document.querySelectorAll('.cmd-item').forEach((el, idx) => {
+        el.className = `cmd-item w-full text-left px-3.5 py-2.5 rounded-xl flex items-center justify-between gap-3 transition cursor-pointer ${idx === selectedCmdIdx ? 'bg-white/[0.09] border border-sky-400/35' : 'border border-transparent hover:bg-white/[0.06]'}`;
+      });
+    }
+
+    function executeCommandAt(idx) {
+      if (filteredCommands[idx]) filteredCommands[idx].run();
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. CONSTELLATION CANVAS BACKGROUND (Respects prefers-reduced-motion)
+    // -------------------------------------------------------------------------
+    function initConstellationCanvas() {
+      const canvas = document.getElementById('constellationCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      let w = 0, h = 0;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const mouse = { x: -9999, y: -9999 };
+      let nodes = [];
+
+      function seed() {
+        const count = Math.min(58, Math.max(24, Math.floor((w * h) / 22000)));
+        const colors = ['#38bdf8', '#a78bfa', '#34d399', '#fbbf24'];
+        nodes = Array.from({ length: count }, (_, i) => ({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.24,
+          vy: (Math.random() - 0.5) * 0.24,
+          r: 1.3 + Math.random() * 1.4,
+          color: colors[i % colors.length]
+        }));
+      }
+
+      function resize() {
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        seed();
+        render();
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+        for (let i = 0; i < nodes.length; i++) {
+          const a = nodes[i];
+          if (!reducedMotion) {
+            a.x += a.vx;
+            a.y += a.vy;
+
+            const dx = mouse.x - a.x;
+            const dy = mouse.y - a.y;
+            const dm = Math.hypot(dx, dy);
+            if (dm > 1 && dm < 155) {
+              a.x += (dx / dm) * 0.14;
+              a.y += (dy / dm) * 0.14;
+            }
+
+            if (a.x < 0 || a.x > w) a.vx *= -1;
+            if (a.y < 0 || a.y > h) a.vy *= -1;
+          }
+
+          for (let j = i + 1; j < nodes.length; j++) {
+            const b = nodes[j];
+            const dist = Math.hypot(a.x - b.x, a.y - b.y);
+            if (dist < 135) {
+              const alpha = (1 - dist / 135) * 0.14;
+              ctx.strokeStyle = `rgba(56, 189, 248, ${alpha.toFixed(3)})`;
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+            }
+          }
+
+          ctx.fillStyle = a.color;
+          ctx.globalAlpha = 0.65;
+          ctx.beginPath();
+          ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        if (!reducedMotion) requestAnimationFrame(render);
+      }
+
+      window.addEventListener('resize', resize);
+      window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+      window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+      resize();
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. MODAL BACKDROPS, KEYBOARD SHORTCUTS & BOOT
+    // -------------------------------------------------------------------------
+    document.getElementById('commandPalette').addEventListener('click', (e) => {
+      if (e.target.id === 'commandPalette') closeCommandPalette();
+    });
+    document.getElementById('specModal').addEventListener('click', (e) => {
+      if (e.target.id === 'specModal') closeSpecModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const paletteOpen = !document.getElementById('commandPalette').classList.contains('hidden');
+      const specOpen = !document.getElementById('specModal').classList.contains('hidden');
+      const tag = document.activeElement?.tagName;
+      const typing = tag === 'INPUT' || tag === 'TEXTAREA';
+
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        paletteOpen ? closeCommandPalette() : openCommandPalette();
+        return;
+      }
+
+      if (e.key === '/' && !typing && !paletteOpen && !specOpen) {
+        e.preventDefault();
+        openCommandPalette();
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        if (paletteOpen) closeCommandPalette();
+        if (specOpen) closeSpecModal();
+        return;
+      }
+
+      if (paletteOpen && filteredCommands.length > 0) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectedCmdIdx = (selectedCmdIdx + 1) % filteredCommands.length;
+          highlightSelectedCmd();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectedCmdIdx = (selectedCmdIdx - 1 + filteredCommands.length) % filteredCommands.length;
+          highlightSelectedCmd();
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          executeCommandAt(selectedCmdIdx);
+        }
+      }
+    });
+
+    window.addEventListener('load', () => {
+      setLanguage(detectInitialLanguage(), false);
+      initConstellationCanvas();
+    });
+  </script>
+</body>
+</html>
